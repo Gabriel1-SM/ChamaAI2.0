@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Administração - Gerenciador de Chamados</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .status-prioridade-alta {
+      color: white;
+      background-color: #dc3545; /* vermelho */
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: center;
+      display: inline-block;
+      min-width: 70px;
+    }
+    .status-prioridade-media {
+      color: black;
+      background-color: #ffc107; /* amarelo */
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: center;
+      display: inline-block;
+      min-width: 70px;
+    }
+    .status-prioridade-baixa {
+      color: white;
+      background-color: #198754; /* verde */
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: center;
+      display: inline-block;
+      min-width: 70px;
+    }
+    .btn-sm {
+      min-width: 70px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 class="mb-4 text-center">Administração de Setores e Prioridades</h2>
+
+    <!-- Seção de setores -->
+    <section class="mb-5">
+      <h4>Gerenciar Setores</h4>
+      <form id="formAdicionarSetor" class="mb-3 d-flex gap-2">
+        <input
+          type="text"
+          id="inputNovoSetor"
+          class="form-control"
+          placeholder="Nome do novo setor"
+          required
+        />
+        <button type="submit" class="btn btn-primary">Adicionar Setor</button>
+      </form>
+
+      <table class="table table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Setor</th>
+            <th style="width: 150px;">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaSetoresBody">
+          <!-- Linhas geradas pelo JS -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Seção de chamados -->
+    <section>
+      <h4>Priorizar Chamados</h4>
+      <div class="mb-3 d-flex justify-content-between align-items-center">
+        <div>
+          <label for="selectOrdenarPrioridade" class="form-label me-2"
+            >Ordenar por Prioridade:</label
+          >
+          <select id="selectOrdenarPrioridade" class="form-select d-inline-block" style="width: 180px;">
+            <option value="nenhum">Nenhum</option>
+            <option value="alta">Prioridade Alta → Baixa</option>
+            <option value="baixa">Prioridade Baixa → Alta</option>
+          </select>
+        </div>
+        <a href="Dashboard.html" class="btn btn-secondary">Voltar para Dashboard</a>
+      </div>
+
+      <table class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Setor</th>
+            <th>Status</th>
+            <th>Prioridade</th>
+            <th style="width: 220px;">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaChamadosBodyAdmin">
+          <!-- Linhas geradas pelo JS -->
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <!-- Modal para editar setor -->
+  <div
+    class="modal fade"
+    id="modalEditarSetor"
+    tabindex="-1"
+    aria-labelledby="modalEditarSetorLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="formEditarSetor">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalEditarSetorLabel">Editar Setor</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Fechar"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="editarSetorIndex" />
+            <div class="mb-3">
+              <label for="editarNomeSetor" class="form-label">Nome do Setor</label>
+              <input
+                type="text"
+                id="editarNomeSetor"
+                class="form-control"
+                required
+              />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Setores e chamados no localStorage
+    let setores = JSON.parse(localStorage.getItem('setores')) || [
+      'Desenvolvimento',
+      'Manutenção',
+      'Redes',
+      'Suporte tecnico',
+      'Suporte Pisicologico'
+    ];
+
+    let chamados = JSON.parse(localStorage.getItem('chamados')) || [];
+
+    const tabelaSetoresBody = document.getElementById('tabelaSetoresBody');
+    const tabelaChamadosBodyAdmin = document.getElementById('tabelaChamadosBodyAdmin');
+    const formAdicionarSetor = document.getElementById('formAdicionarSetor');
+    const inputNovoSetor = document.getElementById('inputNovoSetor');
+    const selectOrdenarPrioridade = document.getElementById('selectOrdenarPrioridade');
+
+    // Modal editar setor
+    const modalEditarSetor = new bootstrap.Modal(document.getElementById('modalEditarSetor'));
+    const formEditarSetor = document.getElementById('formEditarSetor');
+    const editarSetorIndexInput = document.getElementById('editarSetorIndex');
+    const editarNomeSetorInput = document.getElementById('editarNomeSetor');
+
+    // Função para salvar setores no localStorage
+    function salvarSetores() {
+      localStorage.setItem('setores', JSON.stringify(setores));
+    }
+
+    // Atualiza tabela de setores
+    function atualizarTabelaSetores() {
+      tabelaSetoresBody.innerHTML = '';
+      setores.forEach((setor, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${setor}</td>
+          <td>
+            <button class="btn btn-sm btn-warning btn-editar-setor me-2" data-index="${index}">Editar</button>
+            <button class="btn btn-sm btn-danger btn-excluir-setor" data-index="${index}">Excluir</button>
+          </td>
+        `;
+        tabelaSetoresBody.appendChild(tr);
+      });
+    }
+
+    // Atualiza tabela de chamados com prioridade
+    function atualizarTabelaChamados(prioridadeOrdenacao = 'nenhum') {
+      tabelaChamadosBodyAdmin.innerHTML = '';
+
+      // Se priorizar, ordena os chamados
+      let chamadosOrdenados = [...chamados];
+      if (prioridadeOrdenacao === 'alta') {
+        chamadosOrdenados.sort((a, b) => prioridadeParaNumero(b.prioridade) - prioridadeParaNumero(a.prioridade));
+      } else if (prioridadeOrdenacao === 'baixa') {
+        chamadosOrdenados.sort((a, b) => prioridadeParaNumero(a.prioridade) - prioridadeParaNumero(b.prioridade));
+      }
+
+      chamadosOrdenados.forEach(chamado => {
+        const prioridadeClass = classPrioridade(chamado.prioridade);
+        const prioridadeLabel = chamado.prioridade || 'Nenhuma';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${chamado.id}</td>
+          <td>${chamado.titulo}</td>
+          <td>${chamado.setor}</td>
+          <td>${chamado.status}</td>
+          <td><span class="${prioridadeClass}">${prioridadeLabel}</span></td>
+          <td>
+            <button class="btn btn-sm btn-info btn-alterar-prioridade" data-id="${chamado.id}">Alterar Prioridade</button>
+          </td>
+        `;
+        tabelaChamadosBodyAdmin.appendChild(tr);
+      });
+    }
+
+    // Mapeia prioridades para números para ordenação
+    function prioridadeParaNumero(prio) {
+      switch ((prio || '').toLowerCase()) {
+        case 'alta': return 3;
+        case 'média': return 2;
+        case 'media': return 2; // aceita sem acento
+        case 'baixa': return 1;
+        default: return 0;
+      }
+    }
+
+    // Retorna classe CSS da prioridade
+    function classPrioridade(prio) {
+      switch ((prio || '').toLowerCase()) {
+        case 'alta': return 'status-prioridade-alta';
+        case 'média':
+        case 'media': return 'status-prioridade-media';
+        case 'baixa': return 'status-prioridade-baixa';
+        default: return '';
+      }
+    }
+
+    // Adicionar novo setor
+    formAdicionarSetor.addEventListener('submit', e => {
+      e.preventDefault();
+      const novoSetor = inputNovoSetor.value.trim();
+      if (!novoSetor) {
+        alert('Informe um nome válido para o setor.');
+        return;
+      }
+      if (setores.includes(novoSetor)) {
+        alert('Este setor já existe.');
+        return;
+      }
+      setores.push(novoSetor);
+      salvarSetores();
+      atualizarTabelaSetores();
+      inputNovoSetor.value = '';
+      alert('Setor adicionado com sucesso!');
+    });
+
+    // Editar setor
+    tabelaSetoresBody.addEventListener('click', e => {
+      if (e.target.classList.contains('btn-editar-setor')) {
+        const index = Number(e.target.dataset.index);
+        editarSetorIndexInput.value = index;
+        editarNomeSetorInput.value = setores[index];
+        modalEditarSetor.show();
+      }
+      if (e.target.classList.contains('btn-excluir-setor')) {
+        const index = Number(e.target.dataset.index);
+        const setorExcluir = setores[index];
+
+        // Verifica se algum chamado está usando esse setor
+        const usados = chamados.some(ch => ch.setor === setorExcluir);
+        if (usados) {
+          alert('Não é possível excluir setor que está atribuído a algum chamado.');
+          return;
+        }
+
+        if (confirm(`Tem certeza que deseja excluir o setor "${setorExcluir}"?`)) {
+          setores.splice(index, 1);
+          salvarSetores();
+          atualizarTabelaSetores();
+          alert('Setor excluído com sucesso!');
+        }
+      }
+    });
+
+    formEditarSetor.addEventListener('submit', e => {
+      e.preventDefault();
+      const index = Number(editarSetorIndexInput.value);
+      const nomeNovo = editarNomeSetorInput.value.trim();
+      if (!nomeNovo) {
+        alert('Informe um nome válido para o setor.');
+        return;
+      }
+      if (setores.includes(nomeNovo) && setores[index] !== nomeNovo) {
+        alert('Já existe um setor com este nome.');
+        return;
+      }
+
+      // Atualiza setor na lista
+      const setorAntigo = setores[index];
+      setores[index] = nomeNovo;
+
+      // Atualiza chamados que tinham setor antigo
+      chamados.forEach(chamado => {
+        if (chamado.setor === setorAntigo) {
+          chamado.setor = nomeNovo;
+        }
+      });
+
+      salvarSetores();
+      localStorage.setItem('chamados', JSON.stringify(chamados));
+      atualizarTabelaSetores();
+      atualizarTabelaChamados(selectOrdenarPrioridade.value);
+      modalEditarSetor.hide();
+      alert('Setor editado com sucesso!');
+    });
+
+    // Alterar prioridade do chamado
+    tabelaChamadosBodyAdmin.addEventListener('click', e => {
+      if (e.target.classList.contains('btn-alterar-prioridade')) {
+        const id = Number(e.target.dataset.id);
+        const chamado = chamados.find(c => c.id === id);
+        if (!chamado) return;
+
+        const opcoesPrioridade = ['Alta', 'Média', 'Baixa', 'Nenhuma'];
+        let novaPrio = prompt(`Prioridade atual: ${chamado.prioridade || 'Nenhuma'}\nDigite a nova prioridade:\n(Alta, Média, Baixa ou Nenhuma)`);
+        if (!novaPrio) return;
+        novaPrio = novaPrio.trim();
+
+        if (!opcoesPrioridade.map(p => p.toLowerCase()).includes(novaPrio.toLowerCase())) {
+          alert('Prioridade inválida. Use: Alta, Média, Baixa ou Nenhuma.');
+          return;
+        }
+
+        // Padroniza a prioridade (primeira letra maiúscula)
+        chamado.prioridade = novaPrio.charAt(0).toUpperCase() + novaPrio.slice(1).toLowerCase();
+        localStorage.setItem('chamados', JSON.stringify(chamados));
+        atualizarTabelaChamados(selectOrdenarPrioridade.value);
+        alert('Prioridade atualizada com sucesso!');
+      }
+    });
+
+    // Ordenar chamados por prioridade
+    selectOrdenarPrioridade.addEventListener('change', e => {
+      atualizarTabelaChamados(e.target.value);
+    });
+
+    // Inicialização
+    atualizarTabelaSetores();
+    atualizarTabelaChamados(selectOrdenarPrioridade.value);
+  </script>
+</body>
+</html>
