@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cadastro - Gerenciador de Chamados</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    body, html {
+      height: 100%;
+      background: linear-gradient(135deg, #4e73df, #1cc88a);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .register-wrapper {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+    }
+    .register-card {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      max-width: 450px;
+      width: 100%;
+      padding: 30px 35px;
+      text-align: center;
+      transition: box-shadow 0.3s ease;
+    }
+    .register-card:hover {
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+    }
+    .register-title {
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #4e73df;
+    }
+    .form-label {
+      font-weight: 600;
+      color: #333;
+    }
+    .form-control:focus {
+      box-shadow: 0 0 6px #4e73df;
+      border-color: #4e73df;
+    }
+    .btn-primary {
+      background: #4e73df;
+      border: none;
+      font-weight: 600;
+      padding: 10px;
+      transition: background-color 0.3s ease;
+    }
+    .btn-primary:hover {
+      background-color: #3752b5;
+    }
+    .btn-outline-secondary {
+      font-weight: 600;
+      padding: 10px;
+    }
+    .login-link {
+      display: block;
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: #6c757d;
+      text-decoration: none;
+    }
+    .login-link:hover {
+      text-decoration: underline;
+      color: #4e73df;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-wrapper">
+    <div class="register-card shadow-sm">
+      <h1 class="register-title">Criar Conta</h1>
+      <p class="mb-4 text-secondary">Preencha os dados para se cadastrar</p>
+      <form id="registerForm" novalidate>
+        <div class="mb-3 text-start">
+          <label for="nome" class="form-label">Nome Completo</label>
+          <input
+            type="text"
+            class="form-control"
+            id="nome"
+            placeholder="Seu nome completo"
+            required
+            minlength="3"
+          />
+          <div class="invalid-feedback">Informe seu nome completo (mínimo 3 caracteres).</div>
+        </div>
+        <div class="mb-3 text-start">
+          <label for="email" class="form-label">Email</label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            placeholder="seuemail@exemplo.com"
+            required
+          />
+          <div class="invalid-feedback">Por favor, insira um email válido.</div>
+        </div>
+        <div class="mb-3 text-start">
+          <label for="senha" class="form-label">Senha</label>
+          <input
+            type="password"
+            class="form-control"
+            id="senha"
+            placeholder="••••••••"
+            required
+            minlength="6"
+          />
+          <div class="invalid-feedback">Senha deve ter no mínimo 6 caracteres.</div>
+        </div>
+        <div class="mb-3 text-start">
+          <label for="confirmaSenha" class="form-label">Confirmar Senha</label>
+          <input
+            type="password"
+            class="form-control"
+            id="confirmaSenha"
+            placeholder="••••••••"
+            required
+            minlength="6"
+          />
+          <div class="invalid-feedback">As senhas devem coincidir.</div>
+        </div>
+        <div class="d-grid gap-2 mb-3">
+          <button type="submit" class="btn btn-primary btn-lg">Cadastrar</button>
+        </div>
+      </form>
+      <a href="login.html" class="login-link">Já tem uma conta? Faça login</a>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+      const form = document.getElementById('registerForm');
+
+      form.addEventListener(
+        'submit',
+        function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          // Validação HTML5
+          if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+          }
+
+          // Validação senha igual confirmação
+          const senha = document.getElementById('senha').value.trim();
+          const confirmaSenha = document.getElementById('confirmaSenha').value.trim();
+
+          if (senha !== confirmaSenha) {
+            document.getElementById('confirmaSenha').setCustomValidity('Senhas não coincidem');
+            form.classList.add('was-validated');
+            return;
+          } else {
+            document.getElementById('confirmaSenha').setCustomValidity('');
+          }
+
+          const nome = document.getElementById('nome').value.trim();
+          const email = document.getElementById('email').value.trim();
+
+          // Pega usuários já cadastrados do localStorage
+          let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+
+          // Verifica se email já existe
+          if (usuarios.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+            alert('Este email já está cadastrado.');
+            return;
+          }
+
+          // Cria novo usuário e salva
+          const novoUsuario = { nome, email, senha };
+          usuarios.push(novoUsuario);
+          localStorage.setItem('usuarios', JSON.stringify(usuarios));
+
+          alert('Cadastro realizado com sucesso! Você será redirecionado para login.');
+          window.location.href = 'login.html';
+        },
+        false
+      );
+    })();
+  </script>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+  ></script>
+</body>
+</html>

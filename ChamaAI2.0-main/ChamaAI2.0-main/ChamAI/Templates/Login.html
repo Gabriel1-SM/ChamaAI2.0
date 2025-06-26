@@ -1,0 +1,206 @@
+  <!DOCTYPE html>
+  <html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login - Gerenciador de Chamados</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body, html {
+        height: 100%;
+        background: linear-gradient(135deg, #4e73df, #1cc88a);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .login-wrapper {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+      }
+      .login-card {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        max-width: 420px;
+        width: 100%;
+        padding: 30px 35px;
+        text-align: center;
+        transition: box-shadow 0.3s ease;
+      }
+      .login-card:hover {
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+      }
+      .login-title {
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: #4e73df;
+      }
+      .form-label {
+        font-weight: 600;
+        color: #333;
+      }
+      .form-control:focus {
+        box-shadow: 0 0 6px #4e73df;
+        border-color: #4e73df;
+      }
+      .btn-primary {
+        background: #4e73df;
+        border: none;
+        font-weight: 600;
+        padding: 10px;
+        transition: background-color 0.3s ease;
+      }
+      .btn-primary:hover {
+        background-color: #3752b5;
+      }
+      .btn-outline-secondary {
+        font-weight: 600;
+        padding: 10px;
+      }
+      .forgot-password {
+        display: block;
+        margin-top: 10px;
+        font-size: 0.9rem;
+        color: #6c757d;
+        text-decoration: none;
+      }
+      .forgot-password:hover {
+        text-decoration: underline;
+        color: #4e73df;
+      }
+      .divider {
+        height: 1px;
+        background-color: #e9ecef;
+        margin: 1.5rem 0;
+      }
+      .alert-danger {
+        margin-top: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-wrapper">
+      <div class="login-card shadow-sm">
+        <h1 class="login-title">Bem-vindo!</h1>
+        <p class="mb-4 text-secondary">Faça login para acessar seu painel</p>
+        
+        <!-- Mensagem de erro -->
+        <div id="loginError" class="alert alert-danger d-none" role="alert"></div>
+        
+        <form id="loginForm" novalidate>
+          <div class="mb-3 text-start">
+            <label for="login" class="form-label">Login</label>
+            <input
+              type="text"
+              class="form-control"
+              id="login"
+              placeholder="Seu nome de usuário"
+              required
+              autocomplete="username"
+            />
+            <div class="invalid-feedback">Por favor, insira seu login.</div>
+          </div>
+          <div class="mb-3 text-start">
+            <label for="senha" class="form-label">Senha</label>
+            <input
+              type="password"
+              class="form-control"
+              id="senha"
+              placeholder="••••••••"
+              required
+              autocomplete="current-password"
+            />
+            <div class="invalid-feedback">A senha é obrigatória.</div>
+            <a href="#" class="forgot-password">Esqueceu a senha?</a>
+          </div>
+          <div class="d-grid gap-2 mb-3">
+            <button type="submit" class="btn btn-primary btn-lg">Entrar</button>
+          </div>
+        </form>
+        <div class="divider"></div>
+        <a href="register.html" class="btn btn-outline-secondary btn-lg w-100">
+          Criar nova conta
+        </a>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      (function () {
+        'use strict';
+        const form = document.getElementById('loginForm');
+        const loginError = document.getElementById('loginError');
+
+        // Verifica se existe usuário master (executa apenas uma vez quando o sistema é carregado)
+        function verificarUsuarioMaster() {
+          const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+          
+          // Se não existir nenhum usuário master, cria um padrão
+          if (!usuarios.some(u => u.nivel === 'master')) {
+            usuarios.push({
+              login: 'admin',
+              senha: 'admin123', // Em produção, usar hash!
+              nivel: 'master'
+            });
+            localStorage.setItem('usuarios', JSON.stringify(usuarios));
+            console.log('Usuário master padrão criado: login "admin" senha "admin123"');
+          }
+        }
+
+        // Executa a verificação quando a página carrega
+        verificarUsuarioMaster();
+
+        form.addEventListener('submit', function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          // Esconde mensagens de erro anteriores
+          loginError.classList.add('d-none');
+
+          if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+          }
+
+          const login = document.getElementById('login').value.trim();
+          const senha = document.getElementById('senha').value.trim();
+
+          // Pega os usuários cadastrados no localStorage
+          const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+
+          // Verifica se o usuário existe e senha bate
+          const usuarioValido = usuarios.find(
+            u => u.login.toLowerCase() === login.toLowerCase() && u.senha === senha
+          );
+
+          if (usuarioValido) {
+            // Salva o usuário logado no localStorage
+            localStorage.setItem('usuarioLogado', JSON.stringify(usuarioValido));
+            
+            // Redireciona baseado no nível do usuário
+            if (usuarioValido.nivel === 'master') {
+              window.location.href = 'Admin.html'; // Página de administração
+            } else {
+              window.location.href = 'Dashboard.html'; // Página normal
+            }
+          } else {
+            // Mostra mensagem de erro
+            loginError.textContent = 'Login ou senha inválidos.';
+            loginError.classList.remove('d-none');
+            
+            // Adiciona shake animation para feedback visual
+            form.classList.add('animate__animated', 'animate__shakeX');
+            setTimeout(() => {
+              form.classList.remove('animate__animated', 'animate__shakeX');
+            }, 1000);
+          }
+        }, false);
+      })();
+    </script>
+  </body>
+  </html>
