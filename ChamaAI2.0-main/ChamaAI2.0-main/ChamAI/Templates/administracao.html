@@ -4,7 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Administração - Gerenciador de Chamados</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
   <style>
     body {
       background-color: #f8f9fa;
@@ -53,81 +56,23 @@
     .btn-sm {
       min-width: 70px;
     }
-    #usuariosSection {
-      margin-top: 40px;
-    }
   </style>
 </head>
 <body>
   <div class="container">
     <h2 class="mb-4 text-center">Administração de Setores e Prioridades</h2>
 
-    <!-- Seção Gerenciamento de Usuários -->
-    <section id="usuariosSection" class="mb-5">
-      <h4>Gerenciar Usuários</h4>
-      <form id="formAdicionarUsuario" class="mb-3 d-flex gap-2 flex-wrap align-items-end">
-        <div class="flex-grow-1">
-          <label for="inputNovoLogin" class="form-label">Login</label>
-          <input type="text" id="inputNovoLogin" class="form-control" placeholder="Login do usuário" required />
-        </div>
-        <div>
-          <label for="inputNovaSenha" class="form-label">Senha</label>
-          <input type="password" id="inputNovaSenha" class="form-control" placeholder="Senha" required />
-        </div>
-        <div>
-          <label for="selectNivelUsuario" class="form-label">Nível</label>
-          <select id="selectNivelUsuario" class="form-select" required>
-            <option value="normal" selected>Normal</option>
-            <option value="master">Master</option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-success">Adicionar Usuário</button>
-      </form>
-
-      <table class="table table-bordered align-middle">
-        <thead class="table-light">
-          <tr>
-            <th>Login</th>
-            <th>Nível</th>
-            <th style="width: 220px;">Ações</th>
-          </tr>
-        </thead>
-        <tbody id="tabelaUsuariosBody">
-          <!-- Linhas geradas pelo JS -->
-        </tbody>
-      </table>
-    </section>
-
-    <!-- Modal para redefinir senha -->
-    <div class="modal fade" id="modalRedefinirSenha" tabindex="-1" aria-labelledby="modalRedefinirSenhaLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <form id="formRedefinirSenha">
-            <div class="modal-header">
-              <h5 class="modal-title" id="modalRedefinirSenhaLabel">Redefinir Senha</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <div class="modal-body">
-              <input type="hidden" id="redefinirSenhaIndex" />
-              <div class="mb-3">
-                <label for="novaSenha" class="form-label">Nova Senha</label>
-                <input type="password" id="novaSenha" class="form-control" required minlength="4" />
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button type="submit" class="btn btn-primary">Salvar</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
     <!-- Seção de setores -->
     <section class="mb-5">
       <h4>Gerenciar Setores</h4>
       <form id="formAdicionarSetor" class="mb-3 d-flex gap-2">
-        <input type="text" id="inputNovoSetor" class="form-control" placeholder="Nome do novo setor" required />
+        <input
+          type="text"
+          id="inputNovoSetor"
+          class="form-control"
+          placeholder="Nome do novo setor"
+          required
+        />
         <button type="submit" class="btn btn-primary">Adicionar Setor</button>
       </form>
 
@@ -149,7 +94,9 @@
       <h4>Priorizar Chamados</h4>
       <div class="mb-3 d-flex justify-content-between align-items-center">
         <div>
-          <label for="selectOrdenarPrioridade" class="form-label me-2">Ordenar por Prioridade:</label>
+          <label for="selectOrdenarPrioridade" class="form-label me-2"
+            >Ordenar por Prioridade:</label
+          >
           <select id="selectOrdenarPrioridade" class="form-select d-inline-block" style="width: 180px;">
             <option value="nenhum">Nenhum</option>
             <option value="alta">Prioridade Alta → Baixa</option>
@@ -177,52 +124,85 @@
     </section>
   </div>
 
+  <!-- Modal para editar setor -->
+  <div
+    class="modal fade"
+    id="modalEditarSetor"
+    tabindex="-1"
+    aria-labelledby="modalEditarSetorLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="formEditarSetor">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalEditarSetorLabel">Editar Setor</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Fechar"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="editarSetorIndex" />
+            <div class="mb-3">
+              <label for="editarNomeSetor" class="form-label">Nome do Setor</label>
+              <input
+                type="text"
+                id="editarNomeSetor"
+                class="form-control"
+                required
+              />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Dados Iniciais
-    let setores = JSON.parse(localStorage.getItem('setores')) || ['Desenvolvimento', 'Manutenção', 'Redes', 'Suporte Técnico'];
+    // Setores e chamados no localStorage
+    let setores = JSON.parse(localStorage.getItem('setores')) || [
+      'Desenvolvimento',
+      'Manutenção',
+      'Redes',
+      'Suporte tecnico',
+      'Suporte Pisicologico'
+    ];
+
     let chamados = JSON.parse(localStorage.getItem('chamados')) || [];
-    let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
 
-    // Criar usuário master se não existir
-    if (!usuarios.some(u => u.nivel === 'master')) {
-      usuarios.push({
-        login: 'admin',
-        senha: 'admin123', // Em app real, usar hash!
-        nivel: 'master'
-      });
-      localStorage.setItem('usuarios', JSON.stringify(usuarios));
-      alert('Usuário master padrão criado: login "admin" senha "admin123"');
-    }
+    const tabelaSetoresBody = document.getElementById('tabelaSetoresBody');
+    const tabelaChamadosBodyAdmin = document.getElementById('tabelaChamadosBodyAdmin');
+    const formAdicionarSetor = document.getElementById('formAdicionarSetor');
+    const inputNovoSetor = document.getElementById('inputNovoSetor');
+    const selectOrdenarPrioridade = document.getElementById('selectOrdenarPrioridade');
 
-    // Função para salvar os dados no localStorage
-    function salvarDados() {
+    // Modal editar setor
+    const modalEditarSetor = new bootstrap.Modal(document.getElementById('modalEditarSetor'));
+    const formEditarSetor = document.getElementById('formEditarSetor');
+    const editarSetorIndexInput = document.getElementById('editarSetorIndex');
+    const editarNomeSetorInput = document.getElementById('editarNomeSetor');
+
+    // Função para salvar setores no localStorage
+    function salvarSetores() {
       localStorage.setItem('setores', JSON.stringify(setores));
-      localStorage.setItem('chamados', JSON.stringify(chamados));
-      localStorage.setItem('usuarios', JSON.stringify(usuarios));
     }
 
-    // Função para atualizar a tabela de usuários
-    function atualizarTabelaUsuarios() {
-      const tabelaUsuariosBody = document.getElementById('tabelaUsuariosBody');
-      tabelaUsuariosBody.innerHTML = '';
-      usuarios.forEach((usuario, index) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${usuario.login}</td>
-          <td>${usuario.nivel}</td>
-          <td>
-            <button class="btn btn-sm btn-warning btn-redefinir-senha me-2" data-index="${index}" data-bs-toggle="modal" data-bs-target="#modalRedefinirSenha">Redefinir Senha</button>
-            ${usuario.nivel !== 'master' ? `<button class="btn btn-sm btn-danger btn-excluir-usuario" data-index="${index}">Excluir</button>` : ''}
-          </td>
-        `;
-        tabelaUsuariosBody.appendChild(tr);
-      });
-    }
-
-    // Função para atualizar a tabela de setores
+    // Atualiza tabela de setores
     function atualizarTabelaSetores() {
-      const tabelaSetoresBody = document.getElementById('tabelaSetoresBody');
       tabelaSetoresBody.innerHTML = '';
       setores.forEach((setor, index) => {
         const tr = document.createElement('tr');
@@ -237,12 +217,12 @@
       });
     }
 
-    // Função para atualizar a tabela de chamados
+    // Atualiza tabela de chamados com prioridade
     function atualizarTabelaChamados(prioridadeOrdenacao = 'nenhum') {
-      const tabelaChamadosBodyAdmin = document.getElementById('tabelaChamadosBodyAdmin');
       tabelaChamadosBodyAdmin.innerHTML = '';
-      let chamadosOrdenados = [...chamados];
 
+      // Se priorizar, ordena os chamados
+      let chamadosOrdenados = [...chamados];
       if (prioridadeOrdenacao === 'alta') {
         chamadosOrdenados.sort((a, b) => prioridadeParaNumero(b.prioridade) - prioridadeParaNumero(a.prioridade));
       } else if (prioridadeOrdenacao === 'baixa') {
@@ -250,13 +230,16 @@
       }
 
       chamadosOrdenados.forEach(chamado => {
+        const prioridadeClass = classPrioridade(chamado.prioridade);
+        const prioridadeLabel = chamado.prioridade || 'Nenhuma';
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${chamado.id}</td>
           <td>${chamado.titulo}</td>
           <td>${chamado.setor}</td>
           <td>${chamado.status}</td>
-          <td><span class="status-prioridade-${chamado.prioridade}">${chamado.prioridade}</span></td>
+          <td><span class="${prioridadeClass}">${prioridadeLabel}</span></td>
           <td>
             <button class="btn btn-sm btn-info btn-alterar-prioridade" data-id="${chamado.id}">Alterar Prioridade</button>
           </td>
@@ -265,20 +248,32 @@
       });
     }
 
-    // Funções de Prioridade
+    // Mapeia prioridades para números para ordenação
     function prioridadeParaNumero(prio) {
       switch ((prio || '').toLowerCase()) {
         case 'alta': return 3;
         case 'média': return 2;
+        case 'media': return 2; // aceita sem acento
         case 'baixa': return 1;
         default: return 0;
       }
     }
 
-    // Eventos de Adição de Setor
-    document.getElementById('formAdicionarSetor').addEventListener('submit', e => {
+    // Retorna classe CSS da prioridade
+    function classPrioridade(prio) {
+      switch ((prio || '').toLowerCase()) {
+        case 'alta': return 'status-prioridade-alta';
+        case 'média':
+        case 'media': return 'status-prioridade-media';
+        case 'baixa': return 'status-prioridade-baixa';
+        default: return '';
+      }
+    }
+
+    // Adicionar novo setor
+    formAdicionarSetor.addEventListener('submit', e => {
       e.preventDefault();
-      const novoSetor = document.getElementById('inputNovoSetor').value.trim();
+      const novoSetor = inputNovoSetor.value.trim();
       if (!novoSetor) {
         alert('Informe um nome válido para o setor.');
         return;
@@ -288,82 +283,105 @@
         return;
       }
       setores.push(novoSetor);
-      salvarDados();
+      salvarSetores();
       atualizarTabelaSetores();
-      document.getElementById('inputNovoSetor').value = '';
+      inputNovoSetor.value = '';
       alert('Setor adicionado com sucesso!');
     });
 
-    // Eventos de Adição de Usuário
-    document.getElementById('formAdicionarUsuario').addEventListener('submit', e => {
-      e.preventDefault();
-      const login = document.getElementById('inputNovoLogin').value.trim();
-      const senha = document.getElementById('inputNovaSenha').value.trim();
-      const nivel = document.getElementById('selectNivelUsuario').value;
-
-      if (!login || !senha) {
-        alert('Informe login e senha válidos.');
-        return;
-      }
-      if (usuarios.some(u => u.login.toLowerCase() === login.toLowerCase())) {
-        alert('Usuário já existe.');
-        return;
-      }
-      usuarios.push({ login, senha, nivel });
-      salvarDados();
-      atualizarTabelaUsuarios();
-      document.getElementById('inputNovoLogin').value = '';
-      document.getElementById('inputNovaSenha').value = '';
-      alert('Usuário adicionado com sucesso!');
-    });
-
-    // Evento para redefinir senha
-    document.getElementById('tabelaUsuariosBody').addEventListener('click', e => {
-      if (e.target.classList.contains('btn-redefinir-senha')) {
+    // Editar setor
+    tabelaSetoresBody.addEventListener('click', e => {
+      if (e.target.classList.contains('btn-editar-setor')) {
         const index = Number(e.target.dataset.index);
-        document.getElementById('redefinirSenhaIndex').value = index;
-        document.getElementById('novaSenha').value = '';
+        editarSetorIndexInput.value = index;
+        editarNomeSetorInput.value = setores[index];
+        modalEditarSetor.show();
       }
-
-      if (e.target.classList.contains('btn-excluir-usuario')) {
+      if (e.target.classList.contains('btn-excluir-setor')) {
         const index = Number(e.target.dataset.index);
-        if (confirm(`Tem certeza que deseja excluir o usuário "${usuarios[index].login}"?`)) {
-          usuarios.splice(index, 1);
-          salvarDados();
-          atualizarTabelaUsuarios();
-          alert('Usuário excluído com sucesso!');
+        const setorExcluir = setores[index];
+
+        // Verifica se algum chamado está usando esse setor
+        const usados = chamados.some(ch => ch.setor === setorExcluir);
+        if (usados) {
+          alert('Não é possível excluir setor que está atribuído a algum chamado.');
+          return;
+        }
+
+        if (confirm(`Tem certeza que deseja excluir o setor "${setorExcluir}"?`)) {
+          setores.splice(index, 1);
+          salvarSetores();
+          atualizarTabelaSetores();
+          alert('Setor excluído com sucesso!');
         }
       }
     });
 
-    // Submissão do formulário de redefinição de senha
-    document.getElementById('formRedefinirSenha').addEventListener('submit', e => {
+    formEditarSetor.addEventListener('submit', e => {
       e.preventDefault();
-      const index = Number(document.getElementById('redefinirSenhaIndex').value);
-      const novaSenha = document.getElementById('novaSenha').value.trim();
-
-      if (novaSenha.length < 4) {
-        alert('A senha deve ter pelo menos 4 caracteres.');
+      const index = Number(editarSetorIndexInput.value);
+      const nomeNovo = editarNomeSetorInput.value.trim();
+      if (!nomeNovo) {
+        alert('Informe um nome válido para o setor.');
+        return;
+      }
+      if (setores.includes(nomeNovo) && setores[index] !== nomeNovo) {
+        alert('Já existe um setor com este nome.');
         return;
       }
 
-      usuarios[index].senha = novaSenha;
-      salvarDados();
-      alert('Senha redefinida com sucesso!');
-      const modal = bootstrap.Modal.getInstance(document.getElementById('modalRedefinirSenha'));
-      modal.hide();
-      atualizarTabelaUsuarios();
+      // Atualiza setor na lista
+      const setorAntigo = setores[index];
+      setores[index] = nomeNovo;
+
+      // Atualiza chamados que tinham setor antigo
+      chamados.forEach(chamado => {
+        if (chamado.setor === setorAntigo) {
+          chamado.setor = nomeNovo;
+        }
+      });
+
+      salvarSetores();
+      localStorage.setItem('chamados', JSON.stringify(chamados));
+      atualizarTabelaSetores();
+      atualizarTabelaChamados(selectOrdenarPrioridade.value);
+      modalEditarSetor.hide();
+      alert('Setor editado com sucesso!');
     });
 
-    // Evento para ordenar chamados por prioridade
-    document.getElementById('selectOrdenarPrioridade').addEventListener('change', e => {
+    // Alterar prioridade do chamado
+    tabelaChamadosBodyAdmin.addEventListener('click', e => {
+      if (e.target.classList.contains('btn-alterar-prioridade')) {
+        const id = Number(e.target.dataset.id);
+        const chamado = chamados.find(c => c.id === id);
+        if (!chamado) return;
+
+        const opcoesPrioridade = ['Alta', 'Média', 'Baixa', 'Nenhuma'];
+        let novaPrio = prompt(`Prioridade atual: ${chamado.prioridade || 'Nenhuma'}\nDigite a nova prioridade:\n(Alta, Média, Baixa ou Nenhuma)`);
+        if (!novaPrio) return;
+        novaPrio = novaPrio.trim();
+
+        if (!opcoesPrioridade.map(p => p.toLowerCase()).includes(novaPrio.toLowerCase())) {
+          alert('Prioridade inválida. Use: Alta, Média, Baixa ou Nenhuma.');
+          return;
+        }
+
+        // Padroniza a prioridade (primeira letra maiúscula)
+        chamado.prioridade = novaPrio.charAt(0).toUpperCase() + novaPrio.slice(1).toLowerCase();
+        localStorage.setItem('chamados', JSON.stringify(chamados));
+        atualizarTabelaChamados(selectOrdenarPrioridade.value);
+        alert('Prioridade atualizada com sucesso!');
+      }
+    });
+
+    // Ordenar chamados por prioridade
+    selectOrdenarPrioridade.addEventListener('change', e => {
       atualizarTabelaChamados(e.target.value);
     });
 
-    // Inicialização das tabelas
+    // Inicialização
     atualizarTabelaSetores();
-    atualizarTabelaChamados();
-    atualizarTabelaUsuarios();
+    atualizarTabelaChamados(selectOrdenarPrioridade.value);
   </script>
 </body>
 </html>

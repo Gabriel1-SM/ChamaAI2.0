@@ -9,6 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
   <style>
+    /* Seus estilos aqui, igual ao que mandou */
     :root {
       --primary-color: #4e73df;
       --secondary-color: #858796;
@@ -227,10 +228,15 @@
 </head>
 <body>
   <div class="dashboard-container">
-    <div class="page-header">
-      <h2 class="text-primary"><i class="fas fa-tachometer-alt"></i> Dashboard de Chamados</h2>
-      <p class="text-muted">Visão geral do sistema de gerenciamento de chamados</p>
-    </div>
+    <div class="page-header d-flex justify-content-between align-items-center">
+  <div>
+    <h2 class="text-primary"><i class="fas fa-tachometer-alt"></i> Dashboard de Chamados</h2>
+    <p class="text-muted">Visão geral do sistema de gerenciamento de chamados</p>
+  </div>
+  <button id="btnLogout" class="btn btn-outline-danger">
+    <i class="fas fa-sign-out-alt"></i> Sair
+  </button>
+</div>
 
     <div class="row mb-4">
       <div class="col-xl-3 col-md-6 mb-4">
@@ -318,35 +324,8 @@
           </div>
         </div>
       </div>
-      
-      <div class="col-lg-6 mb-4">
-        <div class="card">
-          <div class="card-header">
-            <h6 class="section-title"><i class="fas fa-clock"></i> Chamados Urgentes</h6>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Título</th>
-                    <th>Setor</th>
-                    <th>Dias</th>
-                  </tr>
-                </thead>
-                <tbody id="chamadosUrgentesBody">
-                </tbody>
-              </table>
-            </div>
-            <div class="text-center mt-3">
-              <a href="prioridades.html" class="btn btn-sm btn-danger">Ver Urgências</a>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-
+    
     <div class="card mb-4">
       <div class="card-header">
         <h6 class="section-title"><i class="fas fa-tasks"></i> Estatísticas de Resolução</h6>
@@ -379,12 +358,13 @@
         <button id="btnNovoChamado" class="btn btn-primary">
           <i class="fas fa-plus-circle"></i> Novo Chamado
         </button>
-        <a href="relatorios.html" class="btn btn-outline-secondary ml-2">
-          <i class="fas fa-file-alt"></i> Gerar Relatório
-        </a>
+        <button id="btnGerarRelatorio" class="btn btn-outline-secondary ml-2">
+  <i class="fas fa-file-download"></i> Exportar Relatório CSV
+</button>
+
       </div>
       <div>
-        <a href="configuracoes.html" class="btn btn-outline-dark">
+        <a href="administracao.html" class="btn btn-outline-dark">
           <i class="fas fa-cog"></i> Configurações
         </a>
       </div>
@@ -395,182 +375,192 @@
   <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
   
   <script>
-    // Dados de exemplo (seriam substituídos por dados reais do localStorage/API)
-    const chamados = JSON.parse(localStorage.getItem('chamados')) || [
-      { id: 1001, titulo: "Problema de rede", setor: "Redes", status: "Aberto", prioridade: "Alta", data: "2023-06-15", responsavel: "João Silva" },
-      { id: 1002, titulo: "Acesso ao sistema", setor: "Desenvolvimento", status: "Em Andamento", prioridade: "Média", data: "2023-06-14", responsavel: "Maria Souza" },
-      { id: 1003, titulo: "Atualização de software", setor: "Manutenção", status: "Finalizado", prioridade: "Baixa", data: "2023-06-10", responsavel: "Carlos Oliveira" },
-      { id: 1004, titulo: "Servidor lento", setor: "Redes", status: "Aberto", prioridade: "Urgente", data: "2023-06-16", responsavel: "Ana Santos" },
-      { id: 1005, titulo: "Problema com impressora", setor: "Suporte tecnico", status: "Aberto", prioridade: "Média", data: "2023-06-16", responsavel: "Pedro Costa" },
-      { id: 1006, titulo: "Treinamento necessário", setor: "Suporte Pisicologico", status: "Finalizado", prioridade: "Baixa", data: "2023-06-05", responsavel: "Lucia Ferreira" },
-      { id: 1007, titulo: "Backup não realizado", setor: "Redes", status: "Em Andamento", prioridade: "Alta", data: "2023-06-13", responsavel: "Marcos Lima" }
-    ];
+  /**
+   * Carrega os dados do localStorage (ou um array vazio se não houver dados)
+   */
+  const chamados = JSON.parse(localStorage.getItem('chamados')) || [];
 
-    // Função para carregar o dashboard
-    function carregarDashboard() {
-      // Atualiza os cards de resumo
-      document.getElementById('totalChamados').textContent = chamados.length;
-      document.getElementById('chamadosAbertos').textContent = chamados.filter(c => c.status === 'Aberto').length;
-      document.getElementById('chamadosAndamento').textContent = chamados.filter(c => c.status === 'Em Andamento').length;
-      document.getElementById('chamadosFinalizados').textContent = chamados.filter(c => c.status === 'Finalizado').length;
+  /**
+   * Função principal para carregar a dashboard
+   */
+  function carregarDashboard() {
+    // Atualiza os números dos cards principais
+    document.getElementById('totalChamados').textContent = chamados.length;
+    document.getElementById('chamadosAbertos').textContent = chamados.filter(c => c.status === 'Aberto').length;
+    document.getElementById('chamadosAndamento').textContent = chamados.filter(c => c.status === 'Em Andamento').length;
+    document.getElementById('chamadosFinalizados').textContent = chamados.filter(c => c.status === 'Finalizado').length;
 
-      // Gráfico de chamados por setor
-      const setoresValidos = ["Desenvolvimento", "Manutenção", "Redes", "Suporte tecnico", "Suporte Pisicologico"];
-      const setoresCount = {};
-      setoresValidos.forEach(setor => setoresCount[setor] = 0);
-
-      chamados.forEach(c => {
-        if (setoresValidos.includes(c.setor)) {
-          setoresCount[c.setor]++;
-        }
-      });
-
-      const labelsSetores = Object.keys(setoresCount);
-      const dataSetores = Object.values(setoresCount);
-
-      // Destrói gráficos existentes
-      if (window.graficoSetores) window.graficoSetores.destroy();
-      if (window.graficoPrioridades) window.graficoPrioridades.destroy();
-
-      // Cria gráfico de barras para setores
-      const ctxSetores = document.getElementById('chartSetores').getContext('2d');
-      window.graficoSetores = new Chart(ctxSetores, {
-        type: 'bar',
-        data: {
-          labels: labelsSetores,
-          datasets: [{
-            label: 'Chamados por Setor',
-            data: dataSetores,
-            backgroundColor: [
-              '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'
-            ],
-            borderRadius: 5,
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
-          scales: {
-            y: { 
-              beginAtZero: true,
-              ticks: {
-                precision: 0
-              }
-            }
-          }
-        }
-      });
-
-      // Gráfico de pizza para prioridades
-      const prioridadesCount = {
-        'Urgente': chamados.filter(c => c.prioridade === 'Urgente').length,
-        'Alta': chamados.filter(c => c.prioridade === 'Alta').length,
-        'Média': chamados.filter(c => c.prioridade === 'Média').length,
-        'Baixa': chamados.filter(c => c.prioridade === 'Baixa').length
-      };
-
-      const ctxPrioridades = document.getElementById('chartPrioridades').getContext('2d');
-      window.graficoPrioridades = new Chart(ctxPrioridades, {
-        type: 'doughnut',
-        data: {
-          labels: Object.keys(prioridadesCount),
-          datasets: [{
-            data: Object.values(prioridadesCount),
-            backgroundColor: [
-              '#e74a3b', '#f6c23e', '#36b9cc', '#1cc88a'
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom'
-            }
-          },
-          cutout: '70%'
-        }
-      });
-
-      // Tabela de últimos chamados
-      const ultimosChamados = [...chamados]
-        .sort((a,b) => new Date(b.data) - new Date(a.data))
-        .slice(0,5);
-
-      const tbody = document.getElementById('ultimosChamadosBody');
-      tbody.innerHTML = '';
-
-      ultimosChamados.forEach(c => {
-        const statusClass = {
-          'Aberto': 'primary',
-          'Em Andamento': 'warning',
-          'Finalizado': 'success'
-        }[c.status] || 'secondary';
-
-        const tr = document.createElement('tr');
-        tr.style.cursor = 'pointer';
-        tr.onclick = () => window.location.href = `detalhes.html?id=${c.id}`;
-        tr.innerHTML = `
-          <td>${c.id}</td>
-          <td>${c.titulo}</td>
-          <td><span class="badge badge-${statusClass}">${c.status}</span></td>
-          <td>${formatarData(c.data)}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      // Tabela de chamados urgentes
-      const chamadosUrgentes = chamados
-        .filter(c => c.prioridade === 'Urgente' || c.prioridade === 'Alta')
-        .sort((a,b) => new Date(a.data) - new Date(b.data))
-        .slice(0,5);
-
-      const urgentesBody = document.getElementById('chamadosUrgentesBody');
-      urgentesBody.innerHTML = '';
-
-      chamadosUrgentes.forEach(c => {
-        const diasAberto = Math.floor((new Date() - new Date(c.data)) / (1000 * 60 * 60 * 24));
-        
-        const tr = document.createElement('tr');
-        tr.style.cursor = 'pointer';
-        tr.onclick = () => window.location.href = `detalhes.html?id=${c.id}`;
-        tr.innerHTML = `
-          <td>${c.id}</td>
-          <td>${c.titulo}</td>
-          <td>${c.setor}</td>
-          <td class="${diasAberto > 3 ? 'text-danger' : 'text-warning'}">${diasAberto} dias</td>
-        `;
-        urgentesBody.appendChild(tr);
-      });
-
-      // Estatísticas de resolução (dados fictícios)
-      document.getElementById('tempoMedioResolucao').textContent = '2.8 dias';
-      document.getElementById('taxaResolucao').textContent = '82%';
-      document.querySelector('.progress-bar').style.width = '82%';
-      document.getElementById('satisfacaoCliente').textContent = '4.3/5';
-    }
-
-    // Função auxiliar para formatar data
-    function formatarData(dataString) {
-      const data = new Date(dataString);
-      return data.toLocaleDateString('pt-BR');
-    }
-
-    // Eventos
-    document.getElementById('btnNovoChamado').addEventListener('click', () => {
-      window.location.href = 'abrir-chamado.html';
+    // Contagem de chamados por setor
+    const setoresValidos = ["Desenvolvimento", "Manutenção", "Redes", "Suporte tecnico", "Suporte Psicologico"];
+    const setoresCount = {};
+    setoresValidos.forEach(setor => setoresCount[setor] = 0);
+    chamados.forEach(c => {
+      if (setoresValidos.includes(c.setor)) {
+        setoresCount[c.setor]++;
+      }
     });
 
-    // Carrega o dashboard quando a página é carregada
-    window.addEventListener('load', carregarDashboard);
+    // Contagem de chamados por prioridade
+    const prioridadesValidas = ["Urgente", "Alta", "Média", "Baixa"];
+    const prioridadesCount = {};
+    prioridadesValidas.forEach(p => prioridadesCount[p] = 0);
+    chamados.forEach(c => {
+      if (prioridadesValidas.includes(c.prioridade)) {
+        prioridadesCount[c.prioridade]++;
+      }
+    });
+
+    // Gráfico de chamados por setor (barra)
+    if (window.graficoSetores) window.graficoSetores.destroy();
+    const ctxSetores = document.getElementById('chartSetores').getContext('2d');
+    window.graficoSetores = new Chart(ctxSetores, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(setoresCount),
+        datasets: [{
+          label: 'Chamados por Setor',
+          data: Object.values(setoresCount),
+          backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
+          borderRadius: 5,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+
+    // Gráfico de prioridades (doughnut)
+    if (window.graficoPrioridades) window.graficoPrioridades.destroy();
+    const ctxPrioridades = document.getElementById('chartPrioridades').getContext('2d');
+    window.graficoPrioridades = new Chart(ctxPrioridades, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(prioridadesCount),
+        datasets: [{
+          data: Object.values(prioridadesCount),
+          backgroundColor: ['#e74a3b', '#f6c23e', '#36b9cc', '#1cc88a'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        cutout: '70%'
+      }
+    });
+
+    // Últimos 5 chamados
+    const ultimosChamados = [...chamados]
+      .sort((a, b) => new Date(b.data) - new Date(a.data))
+      .slice(0, 5);
+
+    const tbody = document.getElementById('ultimosChamadosBody');
+    tbody.innerHTML = '';
+
+    ultimosChamados.forEach(c => {
+      const statusClass = {
+        'Aberto': 'primary',
+        'Em Andamento': 'warning',
+        'Finalizado': 'success'
+      }[c.status] || 'secondary';
+
+      const tr = document.createElement('tr');
+      tr.style.cursor = 'pointer';
+      tr.onclick = () => window.location.href = `detalhes.html?id=${c.id}`;
+      tr.innerHTML = `
+        <td>${c.id}</td>
+        <td>${c.titulo}</td>
+        <td><span class="badge badge-${statusClass}">${c.status}</span></td>
+        <td>${formatarData(c.data)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Estatísticas fixas ou simuladas
+    document.getElementById('tempoMedioResolucao').textContent = '2.8 dias';
+    document.getElementById('taxaResolucao').textContent = '82%';
+    document.querySelector('.progress-bar').style.width = '82%';
+    document.getElementById('satisfacaoCliente').textContent = '4.3/5';
+  }
+
+  /**
+   * Formata uma data (string ISO) para o formato brasileiro
+   */
+  function formatarData(dataString) {
+    const data = new Date(dataString);
+    return data.toLocaleDateString('pt-BR');
+  }
+
+  /**
+   * Redireciona para a página de novo chamado
+   */
+  document.getElementById('btnNovoChamado').addEventListener('click', () => {
+    window.location.href = 'abrir-chamado.html';
+  });
+
+  /**
+   * Logout do sistema (limpa os dados do usuário e redireciona)
+   */
+  document.getElementById('btnLogout').addEventListener('click', () => {
+    localStorage.removeItem('usuarioLogado');
+    window.location.href = 'login.html';
+  });
+
+  /**
+   * Botão para gerar relatório em CSV
+   */
+  document.getElementById('btnGerarRelatorio').addEventListener('click', () => {
+    const chamados = JSON.parse(localStorage.getItem('chamados')) || [];
+
+    if (chamados.length === 0) {
+      alert('Não há chamados para gerar relatório.');
+      return;
+    }
+
+    // Cabeçalho do CSV
+    const header = ['ID', 'Título', 'Setor', 'Status', 'Data Abertura', 'Data Fechamento', 'Prioridade'];
+
+    // Mapeia cada chamado como uma linha do CSV
+    const rows = chamados.map(c => [
+      c.id,
+      c.titulo,
+      c.setor,
+      c.status,
+      c.data,
+      c.dataFim || '',
+      c.prioridade || ''
+    ]);
+
+    // Monta o conteúdo CSV
+    const csvContent = [header, ...rows]
+      .map(e => e.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+
+    // Cria arquivo e inicia download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `relatorio_chamados_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  });
+
+  /**
+   * Inicia a dashboard quando a página for carregada
+   */
+  window.addEventListener('load', carregarDashboard);
+</script>
+
+
   </script>
 </body>
 </html>
