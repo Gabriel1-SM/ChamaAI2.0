@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Listagem de Chamados - Gerenciador</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(to right, #434343 0%, black 100%);
+      --glass-effect: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --neon-blue: #00d4ff;
+      --neon-purple: #a100ff;
+      --success-color: #00e676;
+      --warning-color: #ffab00;
+      --danger-color: #ff1744;
+      --dark-color: #1a1a2e;
+      --light-color: #f8f9fc;
+    }
+    
+    body {
+      background: var(--secondary-gradient);
+      font-family: 'Montserrat', sans-serif;
+      color: white;
+      min-height: 100vh;
+    }
+    
+    /* Efeito de partículas futurista */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+    
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background-color: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      animation: float 15s infinite linear;
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(0) translateX(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) translateX(100px);
+        opacity: 0;
+      }
+    }
+    
+    /* Container principal */
+    .main-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 30px;
+      background: rgba(26, 26, 46, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-border);
+      position: relative;
+      z-index: 1;
+      transition: all 0.4s ease;
+    }
+    
+    .main-container:hover {
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Cabeçalho */
+    .page-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .page-header h2 {
+      font-weight: 700;
+      background: linear-gradient(to right, var(--neon-blue), var(--neon-purple));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+    
+    /* Tabela */
+    .table-container {
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+    
+    .table {
+      color: white;
+      margin-bottom: 0;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    
+    .table th {
+      background: rgba(0, 212, 255, 0.1);
+      color: var(--neon-blue);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+    }
+    
+    .table td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 1rem;
+      vertical-align: middle;
+    }
+    
+    .table-hover tbody tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    
+    /* Status */
+    .status {
+      padding: 0.5em 0.8em;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: inline-block;
+      min-width: 100px;
+      text-align: center;
+    }
+    
+    .status-aberto {
+      background: rgba(0, 212, 255, 0.2);
+      color: var(--neon-blue);
+      box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+    }
+    
+    .status-andamento {
+      background: rgba(255, 171, 0, 0.2);
+      color: var(--warning-color);
+      box-shadow: 0 0 10px rgba(255, 171, 0, 0.2);
+    }
+    
+    .status-finalizado {
+      background: rgba(0, 230, 118, 0.2);
+      color: var(--success-color);
+      box-shadow: 0 0 10px rgba(0, 230, 118, 0.2);
+    }
+    
+    /* Botões */
+    .btn {
+      border-radius: 8px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 0.5rem 1rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      font-size: 0.85rem;
+    }
+    
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+    
+    .btn:hover::after {
+      left: 100%;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      border: none;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, var(--success-color), #00c853);
+      border: none;
+    }
+    
+    .btn-warning {
+      background: linear-gradient(135deg, var(--warning-color), #ff9100);
+      border: none;
+      color: #212529;
+    }
+    
+    .btn-info {
+      background: linear-gradient(135deg, #00b4d8, #0096c7);
+      border: none;
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, var(--danger-color), #d50000);
+      border: none;
+    }
+    
+    /* Efeito de onda nos botões */
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+    
+    .ripple {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+    
+    /* Modal */
+    .modal-content {
+      background: rgba(26, 26, 46, 0.95);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+    
+    .modal-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .modal-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .btn-close {
+      filter: invert(1);
+    }
+    
+    /* Formulário */
+    .form-control, .form-select {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      border-radius: 8px;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 0 0.25rem rgba(0, 212, 255, 0.25);
+      color: white;
+    }
+    
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    /* Responsividade */
+    @media (max-width: 768px) {
+      .main-container {
+        margin: 20px 15px;
+        padding: 20px;
+      }
+      
+      .table-responsive {
+        border-radius: 15px;
+        overflow: hidden;
+      }
+      
+      .btn {
+        margin-bottom: 5px;
+        width: 100%;
+      }
+      
+      .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+    }
+    
+    /* Animações */
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Índicador de status */
+    .status-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+      box-shadow: 0 0 10px currentColor;
+    }
+    
+    /* Tooltip customizado */
+    .custom-tooltip {
+      position: relative;
+    }
+    
+    .custom-tooltip::before {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      z-index: 10;
+    }
+    
+    .custom-tooltip:hover::before {
+      opacity: 1;
+      visibility: visible;
+      bottom: calc(100% + 5px);
+    }
+  </style>
+</head>
+<body>
+  <!-- Efeito de partículas de fundo -->
+  <div class="particles" id="particles"></div>
+  
+  <!-- Container principal -->
+  <div class="main-container animate__animated animate__fadeIn">
+    <!-- Cabeçalho -->
+    <div class="page-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2><i class="bi bi-list-task"></i> LISTAGEM DE CHAMADOS</h2>
+          <p class="text-muted">Visualize e gerencie todos os chamados do sistema</p>
+        </div>
+        <div>
+          <a href="Dashboard.html" class="btn btn-secondary me-2">
+            <i class="bi bi-arrow-left"></i> Voltar
+          </a>
+          <a href="abrir-chamado.html" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Novo Chamado
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabela de chamados -->
+    <div class="table-container">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Autor</th>
+              <th>Título</th>
+              <th>Setor</th>
+              <th>Status</th>
+              <th style="width: 220px;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaChamadosBody" class="animate-fade-in">
+            <!-- Preenchido via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Rodapé -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+      <div class="text-muted">
+        Total de chamados: <span id="totalChamados" class="fw-bold">0</span>
+      </div>
+      <div class="d-flex">
+        <button id="btnExportar" class="btn btn-outline-light me-2">
+          <i class="bi bi-download"></i> Exportar
+        </button>
+        <button id="btnFiltrar" class="btn btn-outline-light">
+          <i class="bi bi-funnel"></i> Filtrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Edição -->
+  <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form id="formEditarChamado">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="bi bi-pencil-square"></i> Editar Chamado</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="editarId" />
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Título</label>
+                <input type="text" id="editarTitulo" class="form-control" required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Setor</label>
+                <select id="editarSetor" class="form-select" required>
+                  <option value="Desenvolvimento">Desenvolvimento</option>
+                  <option value="Manutenção">Manutenção</option>
+                  <option value="Redes">Redes</option>
+                  <option value="Suporte tecnico">Suporte técnico</option>
+                  <option value="Suporte Pisicologico">Suporte Psicológico</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Responsável</label>
+                <input type="text" id="editarResponsavel" class="form-control" required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Status</label>
+                <select id="editarStatus" class="form-select" required>
+                  <option value="Aberto">Aberto</option>
+                  <option value="Em Andamento">Em Andamento</option>
+                  <option value="Finalizado">Finalizado</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Descrição</label>
+              <textarea id="editarDescricao" class="form-control" rows="5" required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <i class="bi bi-x-circle"></i> Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-save"></i> Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Status -->
+  <div class="modal fade" id="modalStatus" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-arrow-repeat"></i> Alterar Status</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="statusId" />
+          <div class="d-flex justify-content-around mb-4">
+            <button type="button" class="btn btn-status" data-status="Aberto">
+              <span class="status-indicator status-aberto"></span>
+              Aberto
+            </button>
+            <button type="button" class="btn btn-status" data-status="Em Andamento">
+              <span class="status-indicator status-andamento"></span>
+              Em Andamento
+            </button>
+            <button type="button" class="btn btn-status" data-status="Finalizado">
+              <span class="status-indicator status-finalizado"></span>
+              Finalizado
+            </button>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Observações</label>
+            <textarea id="statusObservacoes" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" id="btnSalvarStatus" class="btn btn-primary">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Dados
+    let chamados = JSON.parse(localStorage.getItem('chamados')) || [];
+    const tabelaBody = document.getElementById('tabelaChamadosBody');
+    const modalEditar = new bootstrap.Modal('#modalEditar');
+    const modalStatus = new bootstrap.Modal('#modalStatus');
+
+    // Criar partículas de fundo
+    function criarParticulas() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = 30;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // Posição aleatória
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${Math.random() * 100}%`;
+        
+        // Tamanho aleatório
+        const size = Math.random() * 3 + 1;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Opacidade aleatória
+        particle.style.opacity = Math.random() * 0.5 + 0.1;
+        
+        // Duração da animação aleatória
+        particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+        particle.style.animationDelay = `${Math.random() * 5}s`;
+        
+        particlesContainer.appendChild(particle);
+      }
+    }
+
+    // Adicionar efeito ripple nos botões
+    function adicionarEfeitoRipple() {
+      document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          const rect = btn.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          
+          const ripple = document.createElement('span');
+          ripple.classList.add('ripple');
+          ripple.style.left = `${x}px`;
+          ripple.style.top = `${y}px`;
+          
+          this.appendChild(ripple);
+          
+          setTimeout(() => {
+            ripple.remove();
+          }, 600);
+        });
+      });
+    }
+
+    // Atualizar tabela
+    function atualizarTabela() {
+      tabelaBody.innerHTML = '';
+      document.getElementById('totalChamados').textContent = chamados.length;
+
+      if (chamados.length === 0) {
+        tabelaBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-4 text-muted">
+              <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+              <p class="mt-2">Nenhum chamado encontrado</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      chamados.forEach(({ id, responsavel = '—', titulo, setor, status }) => {
+        let statusClass = '';
+        if (status === 'Aberto') statusClass = 'status-aberto';
+        else if (status === 'Em Andamento') statusClass = 'status-andamento';
+        else if (status === 'Finalizado') statusClass = 'status-finalizado';
+
+        tabelaBody.innerHTML += `
+          <tr>
+            <td class="fw-bold">${id}</td>
+            <td>${responsavel}</td>
+            <td>
+              <span class="custom-tooltip" data-tooltip="${titulo}">
+                ${titulo.length > 30 ? titulo.substring(0, 30) + '...' : titulo}
+              </span>
+            </td>
+            <td>${setor}</td>
+            <td>
+              <span class="status ${statusClass}">
+                <span class="status-indicator status-${status.toLowerCase().replace(' ', '-')}"></span>
+                ${status}
+              </span>
+            </td>
+            <td>
+              <div class="d-flex action-buttons">
+                <button class="btn btn-warning btn-sm btn-editar me-2" data-id="${id}">
+                  <i class="bi bi-pencil"></i> Editar
+                </button>
+                <button class="btn btn-info btn-sm btn-status me-2" data-id="${id}">
+                  <i class="bi bi-arrow-repeat"></i> Status
+                </button>
+                <button class="btn btn-danger btn-sm btn-excluir" data-id="${id}">
+                  <i class="bi bi-trash"></i> Excluir
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // Eventos da tabela
+    tabelaBody.addEventListener('click', e => {
+      const id = Number(e.target.closest('button')?.dataset.id);
+      if (!id) return;
+
+      if (e.target.closest('.btn-excluir')) {
+        if (confirm('Tem certeza que deseja excluir este chamado?')) {
+          chamados = chamados.filter(c => c.id !== id);
+          localStorage.setItem('chamados', JSON.stringify(chamados));
+          atualizarTabela();
+          mostrarFeedback('Chamado excluído com sucesso!', 'danger');
+        }
+      }
+
+      if (e.target.closest('.btn-editar')) {
+        const chamado = chamados.find(c => c.id === id);
+        if (!chamado) return;
+        
+        document.getElementById('editarId').value = chamado.id;
+        document.getElementById('editarTitulo').value = chamado.titulo;
+        document.getElementById('editarSetor').value = chamado.setor;
+        document.getElementById('editarResponsavel').value = chamado.responsavel;
+        document.getElementById('editarStatus').value = chamado.status;
+        document.getElementById('editarDescricao').value = chamado.descricao;
+        
+        modalEditar.show();
+      }
+
+      if (e.target.closest('.btn-status')) {
+        document.getElementById('statusId').value = id;
+        modalStatus.show();
+      }
+    });
+
+    // Formulário de edição
+    document.getElementById('formEditarChamado').addEventListener('submit', e => {
+      e.preventDefault();
+      const id = Number(document.getElementById('editarId').value);
+      const titulo = document.getElementById('editarTitulo').value.trim();
+      const setor = document.getElementById('editarSetor').value;
+      const responsavel = document.getElementById('editarResponsavel').value.trim();
+      const status = document.getElementById('editarStatus').value;
+      const descricao = document.getElementById('editarDescricao').value.trim();
+      
+      const index = chamados.findIndex(c => c.id === id);
+      if (index >= 0) {
+        chamados[index] = { 
+          ...chamados[index], 
+          titulo, 
+          setor, 
+          responsavel, 
+          status, 
+          descricao,
+          dataAtualizacao: new Date().toISOString()
+        };
+        
+        localStorage.setItem('chamados', JSON.stringify(chamados));
+        atualizarTabela();
+        modalEditar.hide();
+        mostrarFeedback('Chamado atualizado com sucesso!', 'success');
+      }
+    });
+
+    // Alterar status
+    document.getElementById('btnSalvarStatus').addEventListener('click', () => {
+      const id = Number(document.getElementById('statusId').value);
+      const status = document.querySelector('.btn-status.active')?.dataset.status;
+      const observacoes = document.getElementById('statusObservacoes').value.trim();
+      
+      if (!status) {
+        alert('Selecione um status');
+        return;
+      }
+      
+      const index = chamados.findIndex(c => c.id === id);
+      if (index >= 0) {
+        chamados[index] = { 
+          ...chamados[index], 
+          status,
+          observacoes: observacoes ? [...(chamados[index].observacoes || []), observacoes] : (chamados[index].observacoes || []),
+          dataAtualizacao: new Date().toISOString()
+        };
+        
+        localStorage.setItem('chamados', JSON.stringify(chamados));
+        atualizarTabela();
+        modalStatus.hide();
+        mostrarFeedback('Status atualizado com sucesso!', 'info');
+      }
+    });
+
+    // Botões de status
+    document.querySelectorAll('.btn-status').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.btn-status').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Exportar dados
+    document.getElementById('btnExportar').addEventListener('click', () => {
+      if (chamados.length === 0) {
+        mostrarFeedback('Nenhum chamado para exportar', 'warning');
+        return;
+      }
+
+      // Cabeçalho do CSV
+      const header = ['ID', 'Título', 'Setor', 'Status', 'Responsável', 'Data Abertura', 'Data Atualização'];
+
+      // Mapeia cada chamado como uma linha do CSV
+      const rows = chamados.map(c => [
+        c.id,
+        c.titulo,
+        c.setor,
+        c.status,
+        c.responsavel || '—',
+        new Date(c.data).toLocaleDateString('pt-BR'),
+        c.dataAtualizacao ? new Date(c.dataAtualizacao).toLocaleDateString('pt-BR') : '—'
+      ]);
+
+      // Monta o conteúdo CSV
+      const csvContent = [header, ...rows]
+        .map(e => e.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+
+      // Cria arquivo e inicia download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `chamados_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      mostrarFeedback('Exportação concluída com sucesso!', 'success');
+    });
+
+    // Mostrar feedback
+    function mostrarFeedback(mensagem, tipo) {
+      const feedback = document.createElement('div');
+      feedback.className = `position-fixed top-0 end-0 p-3`;
+      feedback.style.zIndex = '11';
+      
+      feedback.innerHTML = `
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header bg-${tipo} text-white">
+            <strong class="me-auto">Sistema</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div class="toast-body bg-dark">
+            ${mensagem}
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(feedback);
+      
+      setTimeout(() => {
+        feedback.remove();
+      }, 3000);
+    }
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', () => {
+      criarParticulas();
+      adicionarEfeitoRipple();
+      atualizarTabela();
+    });
+  </script>
+</body>
+</html>
