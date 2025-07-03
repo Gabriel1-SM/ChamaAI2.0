@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="Sistema de abertura de chamados técnicos" />
+  <meta name="author" content="" />
+  <title>Abertura de Chamado - Gerenciador</title>
+
+  <!-- Font Awesome -->
+  <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(to right, #434343 0%, black 100%);
+      --glass-effect: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --neon-blue: #00d4ff;
+      --neon-purple: #a100ff;
+      --success-color: #00e676;
+      --warning-color: #ffab00;
+      --danger-color: #ff1744;
+      --dark-color: #1a1a2e;
+      --light-color: #f8f9fc;
+    }
+
+    body {
+      background: var(--secondary-gradient);
+      font-family: 'Montserrat', sans-serif;
+      color: white;
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    /* Efeito de partículas futurista */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background-color: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      animation: float 15s infinite linear;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0) translateX(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) translateX(100px);
+        opacity: 0;
+      }
+    }
+
+    /* Navbar */
+    .navbar {
+      background: rgba(26, 26, 46, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 0.75rem 1.5rem;
+      z-index: 10;
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      background: linear-gradient(to right, var(--neon-blue), var(--neon-purple));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 1.25rem;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: rgba(26, 26, 46, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-right: 1px solid var(--glass-border);
+      height: calc(100vh - 60px);
+      position: fixed;
+      top: 60px;
+      left: 0;
+      z-index: 5;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-menu {
+      padding: 1.5rem;
+    }
+
+    .sidebar-heading {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-link:hover {
+      background: rgba(0, 212, 255, 0.1);
+      color: white;
+    }
+
+    .sidebar-link.active {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(161, 0, 255, 0.2));
+      color: white;
+    }
+
+    .sidebar-icon {
+      margin-right: 0.75rem;
+      font-size: 1.1rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding: 1rem;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+      border-top: 1px solid var(--glass-border);
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 250px;
+      padding: 2rem;
+      min-height: calc(100vh - 60px);
+      position: relative;
+      z-index: 1;
+      transition: all 0.3s ease;
+    }
+
+    /* Card */
+    .card {
+      background: rgba(26, 26, 46, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 15px;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      margin-bottom: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(161, 0, 255, 0.2));
+      border-radius: 15px 15px 0 0;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+    }
+
+    .card-header h2 {
+      font-weight: 600;
+      margin: 0;
+      font-size: 1.25rem;
+      color: white;
+    }
+
+    .card-header-icon {
+      margin-right: 0.75rem;
+      font-size: 1.25rem;
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Formulário */
+    .form-label {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .form-control, .form-select {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--glass-border);
+      color: white;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 0 0.25rem rgba(0, 212, 255, 0.25);
+      color: white;
+    }
+
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Botões */
+    .btn {
+      border-radius: 8px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 0.75rem 1.5rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      border: none;
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+
+    .btn:hover::after {
+      left: 100%;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Efeito de onda nos botões */
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    .ripple {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+
+    /* Prioridade */
+    .priority-badge {
+      display: inline-block;
+      padding: 0.5em 0.8em;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-left: 0.5rem;
+    }
+
+    .priority-high {
+      background: rgba(255, 23, 68, 0.2);
+      color: var(--danger-color);
+    }
+
+    .priority-medium {
+      background: rgba(255, 171, 0, 0.2);
+      color: var(--warning-color);
+    }
+
+    .priority-low {
+      background: rgba(0, 230, 118, 0.2);
+      color: var(--success-color);
+    }
+
+    /* Responsividade */
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+    }
+
+    /* Animações */
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Efeito de partículas de fundo -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand navbar-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="Dashboard.html">
+        <i class="bi bi-shield-check me-2"></i>Gerenciador de Chamados
+      </a>
+      <button class="btn btn-link text-white" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-menu">
+      <div class="sidebar-heading">Principal</div>
+      <a href="Dashboard.html" class="sidebar-link">
+        <i class="bi bi-speedometer2 sidebar-icon"></i>
+        Dashboard
+      </a>
+
+      <div class="sidebar-heading">Chamados</div>
+      <a href="abrir-chamado.html" class="sidebar-link active">
+        <i class="bi bi-plus-circle sidebar-icon"></i>
+        Abertura de Chamado
+      </a>
+      <a href="listagem.html" class="sidebar-link">
+        <i class="bi bi-list-ul sidebar-icon"></i>
+        Listagem de Chamados
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="small">Logado como:</div>
+      <span id="currentUser">Administrador</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content animate__animated animate__fadeIn">
+    <div class="container-fluid">
+      <h1 class="mb-4"><i class="bi bi-plus-circle me-2"></i>Abertura de Chamado</h1>
+
+      <div class="card animate-fade-in">
+        <div class="card-header">
+          <i class="bi bi-plus-circle card-header-icon"></i>
+          <h2>Novo Chamado</h2>
+        </div>
+        <div class="card-body">
+          <form id="formAbrirChamado">
+            <div class="row mb-4">
+              <div class="col-md-6 mb-3">
+                <label for="titulo" class="form-label">Título do Chamado</label>
+                <input type="text" id="titulo" class="form-control" placeholder="Descreva brevemente o problema" required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="setor" class="form-label">Setor Responsável</label>
+                <select id="setor" class="form-select" required>
+                  <option value="" disabled selected>Selecione o setor</option>
+                  <option value="Desenvolvimento">Desenvolvimento</option>
+                  <option value="Manutenção">Manutenção</option>
+                  <option value="Redes">Redes</option>
+                  <option value="Suporte técnico">Suporte técnico</option>
+                  <option value="Suporte psicológico">Suporte psicológico</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row mb-4">
+              <div class="col-md-6 mb-3">
+                <label for="prioridade" class="form-label">Prioridade</label>
+                <select id="prioridade" class="form-select" required>
+                  <option value="" disabled selected>Selecione a prioridade</option>
+                  <option value="Alta">Alta <span class="priority-badge priority-high">Urgente</span></option>
+                  <option value="Média">Média <span class="priority-badge priority-medium">Importante</span></option>
+                  <option value="Baixa">Baixa <span class="priority-badge priority-low">Normal</span></option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="responsavel" class="form-label">Nome do Responsável</label>
+                <input type="text" id="responsavel" class="form-control" placeholder="Quem está reportando o problema" required />
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="descricao" class="form-label">Descrição Detalhada</label>
+              <textarea id="descricao" rows="5" class="form-control" placeholder="Descreva o problema com o máximo de detalhes possível" required></textarea>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-send-fill me-2"></i>Abrir Chamado
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Criar partículas de fundo
+    function criarParticulas() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = 30;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // Posição aleatória
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${Math.random() * 100}%`;
+        
+        // Tamanho aleatório
+        const size = Math.random() * 3 + 1;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Opacidade aleatória
+        particle.style.opacity = Math.random() * 0.5 + 0.1;
+        
+        // Duração da animação aleatória
+        particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+        particle.style.animationDelay = `${Math.random() * 5}s`;
+        
+        particlesContainer.appendChild(particle);
+      }
+    }
+
+    // Adicionar efeito ripple nos botões
+    function adicionarEfeitoRipple() {
+      document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          const rect = btn.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          
+          const ripple = document.createElement('span');
+          ripple.classList.add('ripple');
+          ripple.style.left = `${x}px`;
+          ripple.style.top = `${y}px`;
+          
+          this.appendChild(ripple);
+          
+          setTimeout(() => {
+            ripple.remove();
+          }, 600);
+        });
+      });
+    }
+
+    // Toggle sidebar em telas pequenas
+    document.getElementById('sidebarToggle').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.toggle('active');
+    });
+
+    // Gerar ID único para o chamado
+    function gerarId() {
+      const chamados = JSON.parse(localStorage.getItem('chamados')) || [];
+      if (chamados.length === 0) return 1;
+      return Math.max(...chamados.map(c => c.id)) + 1;
+    }
+
+    // Carregar usuário logado
+    function carregarUsuario() {
+      const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+      if (usuarioLogado) {
+        document.getElementById('currentUser').textContent = usuarioLogado.nome || usuarioLogado.login;
+        
+        // Preencher automaticamente o campo de responsável
+        const responsavelInput = document.getElementById('responsavel');
+        if (responsavelInput && !responsavelInput.value) {
+          responsavelInput.value = usuarioLogado.nome || usuarioLogado.login;
+        }
+      }
+    }
+
+    // Formulário de abertura de chamado
+    document.getElementById('formAbrirChamado').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const titulo = document.getElementById('titulo').value.trim();
+      const setor = document.getElementById('setor').value;
+      const prioridade = document.getElementById('prioridade').value;
+      const responsavel = document.getElementById('responsavel').value.trim();
+      const descricao = document.getElementById('descricao').value.trim();
+
+      if (!titulo || !setor || !prioridade || !responsavel || !descricao) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+      }
+
+      const novoChamado = {
+        id: gerarId(),
+        titulo,
+        setor,
+        prioridade,
+        responsavel,
+        descricao,
+        status: 'Aberto',
+        data: new Date().toISOString(),
+        criador: JSON.parse(localStorage.getItem('usuarioLogado'))?.login || 'Sistema'
+      };
+
+      const chamados = JSON.parse(localStorage.getItem('chamados')) || [];
+      chamados.push(novoChamado);
+      localStorage.setItem('chamados', JSON.stringify(chamados));
+
+      // Feedback visual
+      const btn = e.target.querySelector('button');
+      btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Chamado Aberto!';
+      btn.classList.remove('btn-primary');
+      btn.classList.add('btn-success');
+      
+      setTimeout(() => {
+        window.location.href = 'Dashboard.html';
+      }, 1500);
+    });
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', function() {
+      criarParticulas();
+      adicionarEfeitoRipple();
+      carregarUsuario();
+    });
+  </script>
+</body>
+
+</html>

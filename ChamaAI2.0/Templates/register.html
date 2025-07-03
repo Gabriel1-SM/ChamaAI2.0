@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cadastro - Gerenciador de Chamados</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(to right, #434343 0%, black 100%);
+      --glass-effect: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --neon-blue: #00d4ff;
+      --neon-purple: #a100ff;
+      --success-color: #00e676;
+    }
+    
+    body, html {
+      height: 100%;
+      margin: 0;
+      background: var(--secondary-gradient);
+      font-family: 'Montserrat', sans-serif;
+      color: white;
+      overflow: hidden;
+    }
+    
+    /* Efeito de partículas futurista */
+    .particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+    
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background-color: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      animation: float 15s infinite linear;
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(0) translateX(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) translateX(100px);
+        opacity: 0;
+      }
+    }
+    
+    .register-wrapper {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .register-card {
+      background: var(--glass-effect);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.36);
+      max-width: 480px;
+      width: 100%;
+      padding: 40px;
+      text-align: center;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .register-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: var(--primary-gradient);
+      opacity: 0.2;
+      z-index: -1;
+      transform: rotate(45deg);
+    }
+    
+    .register-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    }
+    
+    .register-title {
+      font-weight: 700;
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, var(--neon-blue), var(--neon-purple));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .register-subtitle {
+      font-weight: 300;
+      margin-bottom: 2rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.95rem;
+    }
+    
+    .form-label {
+      font-weight: 500;
+      color: white;
+      margin-bottom: 0.5rem;
+      display: block;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    
+    .form-control {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 12px 15px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.3);
+      color: white;
+    }
+    
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .btn-register {
+      background: var(--primary-gradient);
+      border: none;
+      font-weight: 600;
+      padding: 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+    
+    .btn-register::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+    
+    .btn-register:hover::after {
+      left: 100%;
+    }
+    
+    .btn-register:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .login-link {
+      display: block;
+      margin-top: 15px;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    
+    .login-link:hover {
+      color: var(--neon-blue);
+      text-decoration: none;
+    }
+    
+    /* Efeito de brilho nos inputs */
+    .input-group {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+    
+    .input-group::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--neon-blue);
+      transition: width 0.4s ease;
+    }
+    
+    .input-group:focus-within::after {
+      width: 100%;
+    }
+    
+    /* Efeito de onda no botão */
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+    
+    .ripple {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+    
+    /* Feedback visual para senha */
+    .password-strength {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      margin-top: 5px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .password-strength-bar {
+      height: 100%;
+      width: 0;
+      background: #ff5252;
+      transition: width 0.3s ease, background 0.3s ease;
+    }
+    
+    /* Responsividade */
+    @media (max-width: 576px) {
+      .register-card {
+        padding: 30px 20px;
+      }
+      
+      .register-title {
+        font-size: 1.8rem;
+      }
+    }
+    
+    /* Animações de validação */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+    
+    .shake {
+      animation: shake 0.4s ease-in-out;
+    }
+    
+    /* Ícone de visualização de senha */
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.5);
+      transition: color 0.3s ease;
+    }
+    
+    .password-toggle:hover {
+      color: var(--neon-blue);
+    }
+  </style>
+</head>
+<body>
+  <div class="particles" id="particles"></div>
+  
+  <div class="register-wrapper">
+    <div class="register-card animate__animated animate__fadeIn">
+      <h1 class="register-title">CRIAR CONTA</h1>
+      <p class="register-subtitle">Preencha seus dados para começar</p>
+      
+      <form id="registerForm" novalidate>
+        <div class="input-group">
+          <label for="nome" class="form-label">NOME COMPLETO</label>
+          <input
+            type="text"
+            class="form-control"
+            id="nome"
+            placeholder="Digite seu nome completo"
+            required
+            minlength="3"
+          />
+          <div class="invalid-feedback">Informe seu nome completo (mínimo 3 caracteres).</div>
+        </div>
+        
+        <div class="input-group">
+          <label for="email" class="form-label">EMAIL</label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            placeholder="seuemail@exemplo.com"
+            required
+          />
+          <div class="invalid-feedback">Por favor, insira um email válido.</div>
+        </div>
+        
+        <div class="input-group">
+          <label for="senha" class="form-label">SENHA</label>
+          <div style="position: relative;">
+            <input
+              type="password"
+              class="form-control"
+              id="senha"
+              placeholder="••••••••"
+              required
+              minlength="6"
+            />
+            <i class="bi bi-eye-slash password-toggle" id="toggleSenha"></i>
+          </div>
+          <div class="password-strength">
+            <div class="password-strength-bar" id="passwordStrengthBar"></div>
+          </div>
+          <div class="invalid-feedback">Senha deve ter no mínimo 6 caracteres.</div>
+        </div>
+        
+        <div class="input-group">
+          <label for="confirmaSenha" class="form-label">CONFIRMAR SENHA</label>
+          <div style="position: relative;">
+            <input
+              type="password"
+              class="form-control"
+              id="confirmaSenha"
+              placeholder="••••••••"
+              required
+              minlength="6"
+            />
+            <i class="bi bi-eye-slash password-toggle" id="toggleConfirmaSenha"></i>
+          </div>
+          <div class="invalid-feedback">As senhas devem coincidir.</div>
+        </div>
+        
+        <div class="d-grid gap-2 mb-3">
+          <button type="submit" class="btn btn-register" id="submitButton">
+            <span>CADASTRAR</span>
+          </button>
+        </div>
+      </form>
+      
+      <a href="Login.html" class="login-link">Já tem uma conta? Faça login</a>
+    </div>
+  </div>
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('registerForm');
+      const submitButton = document.getElementById('submitButton');
+      const toggleSenha = document.getElementById('toggleSenha');
+      const toggleConfirmaSenha = document.getElementById('toggleConfirmaSenha');
+      const senhaInput = document.getElementById('senha');
+      const confirmaSenhaInput = document.getElementById('confirmaSenha');
+      const passwordStrengthBar = document.getElementById('passwordStrengthBar');
+      
+      // Criar partículas de fundo
+      function createParticles() {
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 30;
+        
+        for (let i = 0; i < particleCount; i++) {
+          const particle = document.createElement('div');
+          particle.classList.add('particle');
+          
+          // Posição aleatória
+          particle.style.left = `${Math.random() * 100}%`;
+          particle.style.top = `${Math.random() * 100}%`;
+          
+          // Tamanho aleatório
+          const size = Math.random() * 3 + 1;
+          particle.style.width = `${size}px`;
+          particle.style.height = `${size}px`;
+          
+          // Opacidade aleatória
+          particle.style.opacity = Math.random() * 0.5 + 0.1;
+          
+          // Duração da animação aleatória
+          particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+          particle.style.animationDelay = `${Math.random() * 5}s`;
+          
+          particlesContainer.appendChild(particle);
+        }
+      }
+      
+      // Efeito ripple nos botões
+      function addRippleEffect(button) {
+        button.addEventListener('click', function(e) {
+          const rect = button.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          
+          const ripple = document.createElement('span');
+          ripple.classList.add('ripple');
+          ripple.style.left = `${x}px`;
+          ripple.style.top = `${y}px`;
+          
+          this.appendChild(ripple);
+          
+          setTimeout(() => {
+            ripple.remove();
+          }, 600);
+        });
+      }
+      
+      // Toggle visibilidade da senha
+      function setupPasswordToggle(toggle, input) {
+        toggle.addEventListener('click', function() {
+          const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+          input.setAttribute('type', type);
+          this.classList.toggle('bi-eye');
+          this.classList.toggle('bi-eye-slash');
+        });
+      }
+      
+      // Verificar força da senha
+      function checkPasswordStrength(password) {
+        let strength = 0;
+        
+        // Comprimento mínimo
+        if (password.length >= 6) strength += 20;
+        if (password.length >= 8) strength += 20;
+        
+        // Contém números
+        if (/\d/.test(password)) strength += 20;
+        
+        // Contém letras maiúsculas e minúsculas
+        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 20;
+        
+        // Contém caracteres especiais
+        if (/[^a-zA-Z0-9]/.test(password)) strength += 20;
+        
+        return strength;
+      }
+      
+      // Atualizar barra de força da senha
+      function updatePasswordStrength() {
+        const password = senhaInput.value;
+        const strength = checkPasswordStrength(password);
+        
+        let color = '#ff5252'; // Vermelho (fraca)
+        if (strength >= 60) color = '#ffab40'; // Laranja (média)
+        if (strength >= 80) color = '#69f0ae'; // Verde (forte)
+        
+        passwordStrengthBar.style.width = `${strength}%`;
+        passwordStrengthBar.style.background = color;
+      }
+      
+      // Inicializações
+      createParticles();
+      addRippleEffect(submitButton);
+      setupPasswordToggle(toggleSenha, senhaInput);
+      setupPasswordToggle(toggleConfirmaSenha, confirmaSenhaInput);
+      
+      // Event listeners
+      senhaInput.addEventListener('input', updatePasswordStrength);
+      
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processando...';
+        
+        try {
+          // Validação básica do formulário
+          if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            showError('Preencha todos os campos corretamente.');
+            return;
+          }
+          
+          // Validação de senha
+          const senha = senhaInput.value.trim();
+          const confirmaSenha = confirmaSenhaInput.value.trim();
+          
+          if (senha !== confirmaSenha) {
+            document.getElementById('confirmaSenha').setCustomValidity('Senhas não coincidem');
+            form.classList.add('was-validated');
+            confirmaSenhaInput.classList.add('is-invalid');
+            showError('As senhas não coincidem.');
+            return;
+          }
+          
+          const nome = document.getElementById('nome').value.trim();
+          const email = document.getElementById('email').value.trim();
+          
+          // Verificação robusta do email
+          if (!email) {
+            showError('O campo email é obrigatório.');
+            return;
+          }
+          
+          // Verifica se o localStorage está disponível
+          if (typeof(Storage) === "undefined") {
+            showError('Seu navegador não suporta armazenamento local.');
+            return;
+          }
+          
+          // Verifica se email já existe
+          let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+          
+          const emailExistente = usuarios.some(u => {
+            if (!u.email) return false;
+            return u.email.toLowerCase() === email.toLowerCase();
+          });
+          
+          if (emailExistente) {
+            showError('Este email já está cadastrado.');
+            return;
+          }
+          
+          // Cria novo usuário
+          const novoUsuario = {
+            nome,
+            email,
+            senha,
+            dataCadastro: new Date().toISOString(),
+            nivel: 'usuario' // Nível padrão para novos usuários
+          };
+          
+          // Salva no localStorage
+          usuarios.push(novoUsuario);
+          localStorage.setItem('usuarios', JSON.stringify(usuarios));
+          
+          // Feedback visual de sucesso
+          submitButton.classList.remove('btn-register');
+          submitButton.classList.add('btn-success');
+          submitButton.innerHTML = '<i class="bi bi-check-circle-fill"></i> Cadastro realizado!';
+          
+          // Redirecionamento após 2 segundos
+          setTimeout(() => {
+            window.location.href = 'Login.html';
+          }, 2000);
+          
+        } catch (error) {
+          showError('Ocorreu um erro inesperado: ' + error.message);
+          console.error('Erro no cadastro:', error);
+        }
+      });
+      
+      // Função para mostrar mensagem de erro
+      function showError(message) {
+        const errorElement = document.createElement('div');
+        errorElement.className = 'alert alert-danger mt-3 animate__animated animate__fadeIn';
+        errorElement.textContent = message;
+        errorElement.role = 'alert';
+        
+        // Remove mensagens anteriores
+        const existingError = form.querySelector('.alert-danger');
+        if (existingError) existingError.remove();
+        
+        form.appendChild(errorElement);
+        
+        // Adiciona animação de shake no formulário
+        form.classList.add('animate__animated', 'animate__shakeX');
+        setTimeout(() => {
+          form.classList.remove('animate__animated', 'animate__shakeX');
+        }, 1000);
+        
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<span>CADASTRAR</span>';
+      }
+    });
+  </script>
+</body>
+</html>

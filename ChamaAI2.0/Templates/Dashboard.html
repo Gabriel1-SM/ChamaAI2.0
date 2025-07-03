@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard - Gerenciador de Chamados</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(to right, #434343 0%, black 100%);
+      --glass-effect: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --neon-blue: #00d4ff;
+      --neon-purple: #a100ff;
+      --success-color: #00e676;
+      --warning-color: #ffab00;
+      --danger-color: #ff1744;
+      --dark-color: #1a1a2e;
+      --light-color: #f8f9fc;
+    }
+    
+    body {
+      background: var(--secondary-gradient);
+      font-family: 'Montserrat', sans-serif;
+      color: white;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    /* Efeito de partículas futurista */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+    
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background-color: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      animation: float 15s infinite linear;
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(0) translateX(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) translateX(100px);
+        opacity: 0;
+      }
+    }
+    
+    /* Container principal */
+    .dashboard-container {
+      max-width: 1400px;
+      margin: 30px auto;
+      padding: 30px;
+      background: rgba(26, 26, 46, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-border);
+      position: relative;
+      z-index: 1;
+      transition: all 0.4s ease;
+    }
+    
+    .dashboard-container:hover {
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Cabeçalho */
+    .page-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .page-header h2 {
+      font-weight: 700;
+      background: linear-gradient(to right, var(--neon-blue), var(--neon-purple));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+    
+    .page-header p {
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 300;
+    }
+    
+    /* Cards de resumo */
+    .summary-card {
+      border-radius: 15px;
+      padding: 25px;
+      color: white;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      transition: all 0.4s ease;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      border: none;
+    }
+    
+    .summary-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: rotate(45deg);
+      transition: all 0.6s ease;
+    }
+    
+    .summary-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+    
+    .summary-card:hover::before {
+      left: 100%;
+    }
+    
+    .summary-card .card-icon {
+      font-size: 2.5rem;
+      opacity: 0.3;
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .summary-card:hover .card-icon {
+      opacity: 0.5;
+      transform: scale(1.1);
+    }
+    
+    .summary-card .card-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 10px 0;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .summary-card .card-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.8;
+      font-weight: 500;
+    }
+    
+    /* Cores dos cards */
+    .bg-total {
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    }
+    
+    .bg-abertos {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    
+    .bg-andamento {
+      background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+      color: #212529;
+    }
+    
+    .bg-finalizados {
+      background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+    }
+    
+    .bg-urgentes {
+      background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+    }
+    
+    /* Títulos de seção */
+    .section-title {
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: white;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .section-title i {
+      margin-right: 12px;
+      color: var(--neon-blue);
+      font-size: 1.4rem;
+    }
+    
+    /* Containers de gráficos */
+    .chart-container {
+      position: relative;
+      height: 320px;
+      margin-bottom: 2rem;
+    }
+    
+    /* Cards */
+    .card {
+      background: rgba(26, 26, 46, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      margin-bottom: 2rem;
+      transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .card-header {
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1.2rem 1.5rem;
+      font-weight: 600;
+      color: white;
+      border-radius: 15px 15px 0 0 !important;
+    }
+    
+    .card-body {
+      padding: 1.5rem;
+    }
+    
+    /* Tabelas */
+    .table {
+      color: white;
+      margin-bottom: 0;
+    }
+    
+    .table th {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--neon-blue);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+    }
+    
+    .table td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 1rem;
+      vertical-align: middle;
+    }
+    
+    .table-hover tbody tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    
+    /* Badges */
+    .badge {
+      padding: 0.5em 0.8em;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .badge-primary {
+      background: var(--neon-blue);
+    }
+    
+    .badge-warning {
+      background: var(--warning-color);
+      color: #212529;
+    }
+    
+    .badge-success {
+      background: var(--success-color);
+    }
+    
+    .badge-danger {
+      background: var(--danger-color);
+    }
+    
+    /* Botões */
+    .btn {
+      border-radius: 8px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 0.6rem 1.2rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+    
+    .btn:hover::after {
+      left: 100%;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      border: none;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn-outline-secondary {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      background: transparent;
+    }
+    
+    .btn-outline-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .btn-outline-danger {
+      border: 1px solid rgba(255, 0, 0, 0.3);
+      color: #ff6b6b;
+    }
+    
+    .btn-outline-danger:hover {
+      background: rgba(255, 0, 0, 0.1);
+      color: #ff6b6b;
+    }
+    
+    /* Progress bars */
+    .progress {
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .progress-bar {
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      border-radius: 4px;
+    }
+    
+    /* Efeito de onda nos botões */
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+    
+    .ripple {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+    
+    /* Responsividade */
+    @media (max-width: 992px) {
+      .dashboard-container {
+        padding: 20px;
+      }
+      
+      .summary-card .card-value {
+        font-size: 2rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard-container {
+        margin: 15px;
+        padding: 15px;
+      }
+      
+      .summary-card {
+        margin-bottom: 15px;
+      }
+      
+      .section-title {
+        font-size: 1rem;
+      }
+    }
+    
+    /* Animações */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+    
+    /* Índicador de status */
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+      box-shadow: 0 0 10px currentColor;
+    }
+    
+    .status-open {
+      background-color: var(--neon-blue);
+      color: var(--neon-blue);
+    }
+    
+    .status-progress {
+      background-color: var(--warning-color);
+      color: var(--warning-color);
+    }
+    
+    .status-closed {
+      background-color: var(--success-color);
+      color: var(--success-color);
+    }
+    
+    .status-urgent {
+      background-color: var(--danger-color);
+      color: var(--danger-color);
+    }
+    
+    /* Avatar do usuário */
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Efeito de brilho nos inputs */
+    .input-group {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+    
+    .input-group::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--neon-blue);
+      transition: width 0.4s ease;
+    }
+    
+    .input-group:focus-within::after {
+      width: 100%;
+    }
+    
+    /* Efeito de hover nas linhas da tabela */
+    .table-hover tbody tr {
+      transition: all 0.3s ease;
+    }
+    
+    .table-hover tbody tr:hover {
+      transform: translateX(5px);
+      background: rgba(255, 255, 255, 0.05) !important;
+    }
+    
+    /* Tooltip customizado */
+    .custom-tooltip {
+      position: relative;
+    }
+    
+    .custom-tooltip::before {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      z-index: 10;
+    }
+    
+    .custom-tooltip:hover::before {
+      opacity: 1;
+      visibility: visible;
+      bottom: calc(100% + 5px);
+    }
+  </style>
+</head>
+<body>
+  <!-- Efeito de partículas de fundo -->
+  <div class="particles" id="particles"></div>
+  
+  <!-- Container principal -->
+  <div class="dashboard-container animate__animated animate__fadeIn">
+    <!-- Cabeçalho -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+      <div>
+        <h2><i class="fas fa-tachometer-alt"></i> DASHBOARD DE CHAMADOS</h2>
+        <p>Visão geral do sistema de gerenciamento de chamados</p>
+      </div>
+      <div class="d-flex align-items-center">
+        <div class="me-3 d-none d-md-block">
+          <span class="text-muted">Bem-vindo,</span>
+          <span class="fw-bold" id="userName">Admin</span>
+        </div>
+        <button id="btnLogout" class="btn btn-outline-danger">
+          <i class="fas fa-sign-out-alt"></i> Sair
+        </button>
+      </div>
+    </div>
+
+    <!-- Cards de resumo -->
+    <div class="row mb-4">
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="summary-card bg-total pulse">
+          <i class="fas fa-clipboard-list card-icon"></i>
+          <div class="card-value" id="totalChamados">0</div>
+          <div class="card-title">Total de Chamados</div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="summary-card bg-abertos">
+          <i class="fas fa-folder-open card-icon"></i>
+          <div class="card-value" id="chamadosAbertos">0</div>
+          <div class="card-title">Abertos</div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="summary-card bg-andamento">
+          <i class="fas fa-spinner card-icon"></i>
+          <div class="card-value" id="chamadosAndamento">0</div>
+          <div class="card-title">Em Andamento</div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="summary-card bg-finalizados">
+          <i class="fas fa-check-circle card-icon"></i>
+          <div class="card-value" id="chamadosFinalizados">0</div>
+          <div class="card-title">Finalizados</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos principais -->
+    <div class="row">
+      <div class="col-lg-8 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <h6 class="section-title"><i class="fas fa-chart-line"></i> EVOLUÇÃO MENSAL DE CHAMADOS</h6>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="chartEvolucaoMensal"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <h6 class="section-title"><i class="fas fa-chart-pie"></i> DISTRIBUIÇÃO POR PRIORIDADE</h6>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="chartPrioridades"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabela de chamados recentes e estatísticas -->
+    <div class="row">
+      <div class="col-lg-7 mb-4">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="section-title"><i class="fas fa-list"></i> CHAMADOS RECENTES</h6>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-filter"></i> Filtrar
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="filterDropdown">
+                <li><a class="dropdown-item active" href="#" data-filter="all">Todos</a></li>
+                <li><a class="dropdown-item" href="#" data-filter="Aberto">Abertos</a></li>
+                <li><a class="dropdown-item" href="#" data-filter="Em Andamento">Em Andamento</a></li>
+                <li><a class="dropdown-item" href="#" data-filter="Finalizado">Finalizados</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Setor</th>
+                    <th>Status</th>
+                    <th>Data</th>
+                  </tr>
+                </thead>
+                <tbody id="ultimosChamadosBody">
+                  <!-- Dados serão inseridos via JavaScript -->
+                </tbody>
+              </table>
+            </div>
+            <div class="text-center mt-3">
+              <a href="listagem.html" class="btn btn-sm btn-primary">Ver Todos os Chamados</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-5 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <h6 class="section-title"><i class="fas fa-chart-bar"></i> CHAMADOS POR SETOR</h6>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="chartSetores"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card mt-4">
+          <div class="card-header">
+            <h6 class="section-title"><i class="fas fa-tasks"></i> ESTATÍSTICAS DE RESOLUÇÃO</h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <h6 class="text-muted">Tempo Médio</h6>
+                <div class="h4 text-primary" id="tempoMedioResolucao">2.8 dias</div>
+                <div class="small text-muted">Últimos 30 dias</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <h6 class="text-muted">Taxa de Resolução</h6>
+                <div class="h4 text-success" id="taxaResolucao">82%</div>
+                <div class="progress mt-2">
+                  <div class="progress-bar" role="progressbar" style="width: 82%"></div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <h6 class="text-muted">Satisfação</h6>
+                <div class="h4 text-warning" id="satisfacaoCliente">4.3/5</div>
+                <div class="small text-muted">Baseado em 42 avaliações</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <h6 class="text-muted">Chamados Urgentes</h6>
+                <div class="h4 text-danger" id="chamadosUrgentes">12</div>
+                <div class="small text-muted">Abertos neste mês</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rodapé com ações -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+      <div>
+        <button id="btnNovoChamado" class="btn btn-primary">
+          <i class="fas fa-plus-circle"></i> Novo Chamado
+        </button>
+        <button id="btnGerarRelatorio" class="btn btn-outline-secondary ms-2">
+          <i class="fas fa-file-download"></i> Exportar Relatório
+        </button>
+      </div>
+      <div>
+        <a href="administracao.html" class="btn btn-outline-light me-2">
+          <i class="fas fa-cog"></i> Configurações
+        </a>
+        <button id="btnNotificacoes" class="btn btn-outline-light position-relative">
+          <i class="fas fa-bell"></i>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            3
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de notificações -->
+  <div class="modal fade" id="notificacoesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark text-white">
+        <div class="modal-header border-bottom-0">
+          <h5 class="modal-title"><i class="fas fa-bell me-2"></i> Notificações</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="list-group">
+            <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-0 border-bottom border-secondary">
+              <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1">Novo chamado urgente</h6>
+                <small class="text-muted">há 15 minutos</small>
+              </div>
+              <p class="mb-1">Problema crítico no servidor principal</p>
+            </a>
+            <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-0 border-bottom border-secondary">
+              <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1">Chamado atualizado</h6>
+                <small class="text-muted">há 2 horas</small>
+              </div>
+              <p class="mb-1">O chamado #452 foi movido para "Em Andamento"</p>
+            </a>
+            <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+              <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1">Novo feedback recebido</h6>
+                <small class="text-muted">ontem</small>
+              </div>
+              <p class="mb-1">O cliente avaliou o chamado #421 com 5 estrelas</p>
+            </a>
+          </div>
+        </div>
+        <div class="modal-footer border-top-0">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+          <button type="button" class="btn btn-primary">Ver Todas</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
+  
+  <script>
+    /**
+     * Carrega os dados do localStorage (ou um array vazio se não houver dados)
+     */
+    const chamados = JSON.parse(localStorage.getItem('chamados')) || [];
+    const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')) || { nome: 'Administrador' };
+
+    /**
+     * Função principal para carregar a dashboard
+     */
+    function carregarDashboard() {
+      // Atualiza o nome do usuário
+      document.getElementById('userName').textContent = usuarioLogado.nome || 'Administrador';
+      
+      // Atualiza os números dos cards principais
+      document.getElementById('totalChamados').textContent = chamados.length;
+      document.getElementById('chamadosAbertos').textContent = chamados.filter(c => c.status === 'Aberto').length;
+      document.getElementById('chamadosAndamento').textContent = chamados.filter(c => c.status === 'Em Andamento').length;
+      document.getElementById('chamadosFinalizados').textContent = chamados.filter(c => c.status === 'Finalizado').length;
+      document.getElementById('chamadosUrgentes').textContent = chamados.filter(c => c.prioridade === 'Urgente' && c.status !== 'Finalizado').length;
+
+      // Contagem de chamados por setor
+      const setoresValidos = ["Desenvolvimento", "Manutenção", "Redes", "Suporte Técnico", "Suporte Psicológico"];
+      const setoresCount = {};
+      setoresValidos.forEach(setor => setoresCount[setor] = 0);
+      chamados.forEach(c => {
+        if (setoresValidos.includes(c.setor)) {
+          setoresCount[c.setor]++;
+        }
+      });
+
+      // Contagem de chamados por prioridade
+      const prioridadesValidas = ["Urgente", "Alta", "Média", "Baixa"];
+      const prioridadesCount = {};
+      prioridadesValidas.forEach(p => prioridadesCount[p] = 0);
+      chamados.forEach(c => {
+        if (prioridadesValidas.includes(c.prioridade)) {
+          prioridadesCount[c.prioridade]++;
+        }
+      });
+
+      // Gráfico de evolução mensal
+      const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dec"];
+      const mesAtual = new Date().getMonth();
+      const mesesExibir = meses.slice(Math.max(0, mesAtual - 5), mesAtual + 1);
+      
+      const chamadosPorMes = {};
+      mesesExibir.forEach(mes => chamadosPorMes[mes] = 0);
+      
+      chamados.forEach(c => {
+        const dataChamado = new Date(c.data);
+        const mesChamado = meses[dataChamado.getMonth()];
+        if (mesesExibir.includes(mesChamado)) {
+          chamadosPorMes[mesChamado]++;
+        }
+      });
+
+      // Gráfico de evolução mensal
+      if (window.graficoEvolucaoMensal) window.graficoEvolucaoMensal.destroy();
+      const ctxEvolucao = document.getElementById('chartEvolucaoMensal').getContext('2d');
+      window.graficoEvolucaoMensal = new Chart(ctxEvolucao, {
+        type: 'line',
+        data: {
+          labels: mesesExibir,
+          datasets: [{
+            label: 'Chamados por Mês',
+            data: Object.values(chamadosPorMes),
+            backgroundColor: 'rgba(0, 212, 255, 0.1)',
+            borderColor: 'rgba(0, 212, 255, 1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: 'rgba(0, 212, 255, 1)',
+            pointBorderColor: '#fff',
+            pointHoverRadius: 6,
+            pointHoverBorderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              titleFont: { size: 14, weight: 'bold' },
+              bodyFont: { size: 12 },
+              padding: 12,
+              cornerRadius: 8,
+              displayColors: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { precision: 0, color: 'rgba(255, 255, 255, 0.7)' },
+              grid: { color: 'rgba(255, 255, 255, 0.1)' }
+            },
+            x: {
+              ticks: { color: 'rgba(255, 255, 255, 0.7)' },
+              grid: { color: 'rgba(255, 255, 255, 0.1)' }
+            }
+          }
+        }
+      });
+
+      // Gráfico de chamados por setor (barra)
+      if (window.graficoSetores) window.graficoSetores.destroy();
+      const ctxSetores = document.getElementById('chartSetores').getContext('2d');
+      window.graficoSetores = new Chart(ctxSetores, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(setoresCount),
+          datasets: [{
+            label: 'Chamados por Setor',
+            data: Object.values(setoresCount),
+            backgroundColor: [
+              'rgba(78, 115, 223, 0.8)',
+              'rgba(28, 200, 138, 0.8)',
+              'rgba(54, 185, 204, 0.8)',
+              'rgba(246, 194, 62, 0.8)',
+              'rgba(231, 74, 59, 0.8)'
+            ],
+            borderRadius: 6,
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              titleFont: { size: 14, weight: 'bold' },
+              bodyFont: { size: 12 },
+              padding: 12,
+              cornerRadius: 8,
+              displayColors: true
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { precision: 0, color: 'rgba(255, 255, 255, 0.7)' },
+              grid: { color: 'rgba(255, 255, 255, 0.1)' }
+            },
+            x: {
+              ticks: { color: 'rgba(255, 255, 255, 0.7)' },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+
+      // Gráfico de prioridades (doughnut)
+      if (window.graficoPrioridades) window.graficoPrioridades.destroy();
+      const ctxPrioridades = document.getElementById('chartPrioridades').getContext('2d');
+      window.graficoPrioridades = new Chart(ctxPrioridades, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(prioridadesCount),
+          datasets: [{
+            data: Object.values(prioridadesCount),
+            backgroundColor: [
+              'rgba(231, 74, 59, 0.8)',
+              'rgba(246, 194, 62, 0.8)',
+              'rgba(54, 185, 204, 0.8)',
+              'rgba(28, 200, 138, 0.8)'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                color: 'rgba(255, 255, 255, 0.7)',
+                padding: 20,
+                font: { size: 12 }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              titleFont: { size: 14, weight: 'bold' },
+              bodyFont: { size: 12 },
+              padding: 12,
+              cornerRadius: 8,
+              displayColors: true
+            }
+          },
+          cutout: '75%'
+        }
+      });
+
+      // Carrega os últimos chamados
+      carregarUltimosChamados();
+    }
+
+    /**
+     * Carrega os últimos chamados na tabela
+     */
+    function carregarUltimosChamados(filter = 'all') {
+      let ultimosChamados = [...chamados]
+        .sort((a, b) => new Date(b.data) - new Date(a.data))
+        .slice(0, 5);
+      
+      if (filter !== 'all') {
+        ultimosChamados = ultimosChamados.filter(c => c.status === filter);
+      }
+
+      const tbody = document.getElementById('ultimosChamadosBody');
+      tbody.innerHTML = '';
+
+      if (ultimosChamados.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td colspan="5" class="text-center py-4 text-muted">
+            Nenhum chamado encontrado
+          </td>
+        `;
+        tbody.appendChild(tr);
+        return;
+      }
+
+      ultimosChamados.forEach(c => {
+        const statusClass = {
+          'Aberto': 'primary',
+          'Em Andamento': 'warning',
+          'Finalizado': 'success'
+        }[c.status] || 'secondary';
+
+        const tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
+        tr.onclick = () => window.location.href = `detalhes.html?id=${c.id}`;
+        tr.innerHTML = `
+          <td>${c.id}</td>
+          <td>
+            <span class="d-inline-block text-truncate" style="max-width: 150px;" data-tooltip="${c.titulo}">
+              ${c.titulo}
+            </span>
+          </td>
+          <td>${c.setor}</td>
+          <td>
+            <span class="badge badge-${statusClass}">
+              <span class="status-indicator status-${statusClass.toLowerCase().replace(' ', '-')}"></span>
+              ${c.status}
+            </span>
+          </td>
+          <td>${formatarData(c.data)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /**
+     * Formata uma data (string ISO) para o formato brasileiro
+     */
+    function formatarData(dataString) {
+      const data = new Date(dataString);
+      return data.toLocaleDateString('pt-BR');
+    }
+
+    /**
+     * Cria partículas de fundo
+     */
+    function criarParticulas() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = 50;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // Posição aleatória
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${Math.random() * 100}%`;
+        
+        // Tamanho aleatório
+        const size = Math.random() * 3 + 1;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Opacidade aleatória
+        particle.style.opacity = Math.random() * 0.5 + 0.1;
+        
+        // Duração da animação aleatória
+        particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+        particle.style.animationDelay = `${Math.random() * 5}s`;
+        
+        particlesContainer.appendChild(particle);
+      }
+    }
+
+    /**
+     * Adiciona efeito ripple nos botões
+     */
+    function adicionarEfeitoRipple() {
+      document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          const rect = btn.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          
+          const ripple = document.createElement('span');
+          ripple.classList.add('ripple');
+          ripple.style.left = `${x}px`;
+          ripple.style.top = `${y}px`;
+          
+          this.appendChild(ripple);
+          
+          setTimeout(() => {
+            ripple.remove();
+          }, 600);
+        });
+      });
+    }
+
+    /**
+     * Inicializa os filtros da tabela
+     */
+    function inicializarFiltros() {
+      document.querySelectorAll('[data-filter]').forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.preventDefault();
+          const filter = this.getAttribute('data-filter');
+          
+          // Atualiza o dropdown
+          document.querySelectorAll('[data-filter]').forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+          
+          // Filtra a tabela
+          carregarUltimosChamados(filter === 'all' ? 'all' : filter);
+        });
+      });
+    }
+
+    /**
+     * Redireciona para a página de novo chamado
+     */
+    document.getElementById('btnNovoChamado').addEventListener('click', () => {
+      window.location.href = 'abrir-chamado.html';
+    });
+
+    /**
+     * Logout do sistema (limpa os dados do usuário e redireciona)
+     */
+    document.getElementById('btnLogout').addEventListener('click', () => {
+      localStorage.removeItem('usuarioLogado');
+      window.location.href = 'login.html';
+    });
+
+    /**
+     * Abre o modal de notificações
+     */
+    document.getElementById('btnNotificacoes').addEventListener('click', () => {
+      const modal = new bootstrap.Modal(document.getElementById('notificacoesModal'));
+      modal.show();
+    });
+
+    /**
+     * Botão para gerar relatório em CSV
+     */
+    document.getElementById('btnGerarRelatorio').addEventListener('click', () => {
+      if (chamados.length === 0) {
+        alert('Não há chamados para gerar relatório.');
+        return;
+      }
+
+      // Cabeçalho do CSV
+      const header = ['ID', 'Título', 'Setor', 'Status', 'Prioridade', 'Data Abertura', 'Data Fechamento', 'Responsável'];
+
+      // Mapeia cada chamado como uma linha do CSV
+      const rows = chamados.map(c => [
+        c.id,
+        c.titulo,
+        c.setor,
+        c.status,
+        c.prioridade || '',
+        c.data,
+        c.dataFim || '',
+        c.responsavel || ''
+      ]);
+
+      // Monta o conteúdo CSV
+      const csvContent = [header, ...rows]
+        .map(e => e.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+
+      // Cria arquivo e inicia download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `relatorio_chamados_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    });
+
+    /**
+     * Inicia a dashboard quando a página for carregada
+     */
+    window.addEventListener('load', () => {
+      criarParticulas();
+      adicionarEfeitoRipple();
+      carregarDashboard();
+      inicializarFiltros();
+    });
+  </script>
+</body>
+</html>
